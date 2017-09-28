@@ -10,7 +10,7 @@ import java.net.URL;
 import java.util.Scanner;
 
 import static com.example.jorge.popularmoviesstage1.utilities.information.API_KEY;
-import static com.example.jorge.popularmoviesstage1.utilities.information.MIDLE;
+
 
 /**
  * Created by jorge on 27/09/2017.
@@ -37,8 +37,8 @@ public class NetworkUtils {
      * @param githubSearchQuery The keyword that will be queried for.
      * @return The URL to use to query the GitHub.
      */
-    public static URL buildUrl(String githubSearchQuery) {
-        Uri builtUri = Uri.parse(GITHUB_BASE_URL +  MIDLE + API_KEY ).buildUpon()
+    public static URL buildUrl(String githubSearchQuery,String order ) {
+        Uri builtUri = Uri.parse(GITHUB_BASE_URL +  order + API_KEY ).buildUpon()
                 //.appendQueryParameter(PARAM_QUERY, githubSearchQuery)
                 //.appendQueryParameter(PARAM_SORT, sortBy)
                 .build();
