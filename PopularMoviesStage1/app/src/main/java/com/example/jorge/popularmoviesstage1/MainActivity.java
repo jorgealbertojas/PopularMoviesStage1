@@ -2,32 +2,40 @@ package com.example.jorge.popularmoviesstage1;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.jorge.popularmoviesstage1.Interface.MoviesInterface;
+import com.example.jorge.popularmoviesstage1.Model.Movies;
 import com.example.jorge.popularmoviesstage1.adapter.MoviesAdapter;
-import com.example.jorge.popularmoviesstage1.utilities.NetworkUtils;
-import com.example.jorge.popularmoviesstage1.utilities.OpenMoviesUtils;
+import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
 
-import org.json.JSONException;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.io.IOException;
-import java.net.URL;
-
+import static com.example.jorge.popularmoviesstage1.utilities.information.API_KEY;
 import static com.example.jorge.popularmoviesstage1.utilities.information.MIDLE_POPULAR;
-import static com.example.jorge.popularmoviesstage1.utilities.information.MIDLE_TOP_RATED;
 
 import com.example.jorge.popularmoviesstage1.adapter.MoviesAdapter.MoviesAdapterOnClickHandler;
+import com.example.jorge.popularmoviesstage1.utilities.Utilite;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * {@link MoviesAdapter} exposes a list of weather forecasts to a
@@ -38,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
     private final static int NUMBER_OF_COUMNS = 2;
 
     private MoviesAdapter mMoviesAdapter;
+    private MoviesInterface mMoviesInterface;
 
     private RecyclerView mRecyclerView;
 
@@ -88,25 +97,66 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         /* Once all of our views are setup, we can load the weather data. */
-        makeGithubSearchQuery();
+        if (isOnline()) {
+            createStackoverflowAPI();
+            mMoviesInterface.getMovies().enqueue(moviesCallback);
+
+        }else{
+            Context contexto = getApplicationContext();
+            Toast toast = Toast.makeText(contexto, R.string.Error_Access,Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 
     /**
-     * This method retrieves the search text from the EditText, constructs the
-     * URL (using {@link NetworkUtils}) for the github repository you'd like to find, displays
-     * that URL in a T
-     * extView, and finally fires off an AsyncTask to perform the GET request using
-     * our {@link GithubQueryTask}
+     * Call Get Information Travel .
      */
-    private void makeGithubSearchQuery() {
-       // URL githubSearchUrl = NetworkUtils.buildUrl("");
-        new GithubQueryTask().execute("");
+    private Callback<ListWrapperMovies<Movies>> moviesCallback = new Callback<ListWrapperMovies<Movies>>() {
+        @Override
+        public void onResponse(Call<ListWrapperMovies<Movies>> call, Response<ListWrapperMovies<Movies>> response) {
+            try{
+                if (response.isSuccessful()) {
+                    List<Movies> data = new ArrayList<>();
+                    data.addAll(response.body().results);
+                    mRecyclerView.setAdapter(new MoviesAdapter(data));
+
+                } else {
+                    Log.d("QuestionsCallback", "Code: " + response.code() + " Message: " + response.message());
+                }
+            }catch(NullPointerException e){
+                System.out.println("onActivityResult consume crashed");
+                runOnUiThread(new Runnable(){
+                    public void run(){
+
+                        Context contexto = getApplicationContext();
+                        Toast toast = Toast.makeText(contexto, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onFailure(Call<ListWrapperMovies<Movies>> call, Throwable t) {
+
+        }
+
+    };
+
+
+
+    /**
+     * checks if internet is ok .
+     */
+    private boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
 
 
-
-    // COMPLETED (14) Create a method called showJsonDataView to show the data and hide the error
     /**
      * This method will make the View for the JSON data visible and
      * hide the error message.
@@ -133,65 +183,21 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
     }
 
     @Override
-    public void onClick(String weatherForDay) {
-      //  Context context = this;
-     //   Class destinationClass = DetailActivity.class;
-     //   Intent intentToStartDetailActivity = new Intent(context, destinationClass);
-        // COMPLETED (1) Pass the weather to the DetailActivity
-    //    intentToStartDetailActivity.putExtra(Intent.EXTRA_TEXT, weatherForDay);
-    //    startActivity(intentToStartDetailActivity);
+    public void onClick(Movies movies) {
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+
+        Context context = this;
+        Class destinationClass = DetailActivity.class;
+        Intent intentToStartDetailActivity = new Intent(context, destinationClass);
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_TITLE, movies.getTitle());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_IMAGE_BACKDROP, movies.getBackdrop_path());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_IMAGE_POSTER, movies.getPoster_path());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_OVERVIEW, movies.getOverview());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_VOTE_AVERAGE, movies.getVote_average());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_ID, movies.getId());
+        startActivity(intentToStartDetailActivity);
     }
 
-    public class GithubQueryTask extends AsyncTask<String, Void, String[]> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String[] doInBackground(String... params) {
-                        /* If there's no zip code, there's nothing to look up. */
-            if (params.length == 0) {
-                return null;
-            }
-
-            String location = params[0];
-            URL searchUrl = NetworkUtils.buildUrl(location,MIDLE_POPULAR);
-
-            String githubSearchResults = null;
-            try {
-                githubSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
-
-                try {
-                    String[] simpleJsonMovieData = OpenMoviesUtils
-                            .getSimpleMoviesStringsFromJson(MainActivity.this, githubSearchResults);
-
-                    return simpleJsonMovieData;
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(String[] githubSearchResults) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (githubSearchResults != null && !githubSearchResults.equals("")) {
-                showJsonDataView();
-                mMoviesAdapter.setMoviesData(githubSearchResults);
-            } else {
-                showErrorMessage();
-            }
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -203,9 +209,21 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemThatWasClickedId = item.getItemId();
         if (itemThatWasClickedId == R.id.action_search) {
-            makeGithubSearchQuery();
+           // makeGithubSearchQuery();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void createStackoverflowAPI() {
+        Gson gson = new GsonBuilder()
+                .create();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Utilite.GITHUB_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        mMoviesInterface = retrofit.create(MoviesInterface.class);
     }
 }

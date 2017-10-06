@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Github Query</string>
     <string name="search">Search</string>
-    <!--COMPLETED (1) Add a string stating that an error has occurred-->
     <string name="error_message">
         Failed to get results. Please try again.
     </string>
+    <string name="Error_Access">No access internet</string>
+    <string name="Error_Access_empty">Data empty! There were problems consuming the product, please use RESTORE button.</string>
+
 </resources>

@@ -9,8 +9,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.jorge.popularmoviesstage1.Model.Movies;
 import com.example.jorge.popularmoviesstage1.R;
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
 
 /**
  * Created by jorge on 27/09/2017.
@@ -25,21 +28,21 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
     private final static String URL_SIZE =  "w342";
 
-    private String[] mMovieData;
+    private List<Movies> data;
 
-    private Context context;
+    private Context mContext;
 
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
      * our RecyclerView
      */
-    private final MoviesAdapterOnClickHandler mClickHandler;
+    private static MoviesAdapterOnClickHandler mClickHandler;
 
     /**
      * The interface that receives onClick messages.
      */
     public interface MoviesAdapterOnClickHandler {
-        void onClick(String weatherForDay);
+        void onClick(Movies movies);
     }
 
     /**
@@ -50,6 +53,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
      */
     public MoviesAdapter(MoviesAdapterOnClickHandler clickHandler) {
         mClickHandler = clickHandler;
+    }
+
+    public MoviesAdapter(List<Movies> data) {
+        this.data = data;
     }
 
     /**
@@ -72,8 +79,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String weatherForDay = mMovieData[adapterPosition];
-            mClickHandler.onClick(weatherForDay);
+            Movies movie = data.get(adapterPosition);
+            mClickHandler.onClick(movie);
         }
     }
 
@@ -89,14 +96,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
      * @return A new ForecastAdapterViewHolder that holds the View for each list item
      */
     @Override
-    public MoviesAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        context = viewGroup.getContext();
-        int layoutIdForListItem = R.layout.informatiom_movie;
-        LayoutInflater inflater = LayoutInflater.from(context);
-        boolean shouldAttachToParentImmediately = false;
+    public MoviesAdapter.MoviesAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
-        View view = inflater.inflate(layoutIdForListItem, viewGroup, shouldAttachToParentImmediately);
-        return new MoviesAdapterViewHolder(view);
+        View v;
+        v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.informatiom_movie, viewGroup, false);
+        mContext = viewGroup.getContext();
+        return new MoviesAdapterViewHolder(v);
     }
 
     /**
@@ -112,7 +117,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     @Override
     public void onBindViewHolder(MoviesAdapterViewHolder MoviesAdapterViewHolder, int position) {
 
-        Picasso.with(context).load(URL_IMAGE + URL_SIZE + mMovieData[position]).into(MoviesAdapterViewHolder.mMovieImageView);
+        Movies movies = ((Movies) data.get(position));
+
+        Picasso.with(mContext).load(URL_IMAGE + URL_SIZE + movies.getPoster_path()).into(MoviesAdapterViewHolder.mMovieImageView);
     }
 
     /**
@@ -123,19 +130,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
      */
     @Override
     public int getItemCount() {
-        if (null == mMovieData) return 0;
-        return mMovieData.length;
+        if (null == data) return 0;
+        return data.size();
     }
 
-    /**
-     * This method is used to set the weather forecast on a ForecastAdapter if we've already
-     * created one. This is handy when we get new data from the web but don't want to create a
-     * new ForecastAdapter to display it.
-     *
-     * @param movieData The new weather data to be displayed.
-     */
-    public void setMoviesData(String[] movieData) {
-        mMovieData = movieData;
-        notifyDataSetChanged();
-    }
+
 }
