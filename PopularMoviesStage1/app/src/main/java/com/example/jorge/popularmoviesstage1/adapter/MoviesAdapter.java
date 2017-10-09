@@ -2,18 +2,18 @@ package com.example.jorge.popularmoviesstage1.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.example.jorge.popularmoviesstage1.Model.Movies;
 import com.example.jorge.popularmoviesstage1.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_IMAGE;
+import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_SIZE_W500;
 
 /**
  * Created by jorge on 27/09/2017.
@@ -23,10 +23,6 @@ import java.util.List;
  * {@link android.support.v7.widget.RecyclerView}
  */
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder> {
-
-    private final static String URL_IMAGE =  "http://image.tmdb.org/t/p/";
-
-    private final static String URL_SIZE =  "w342";
 
     private List<Movies> data;
 
@@ -119,7 +115,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
         Movies movies = ((Movies) data.get(position));
 
-        Picasso.with(mContext).load(URL_IMAGE + URL_SIZE + movies.getPoster_path()).into(MoviesAdapterViewHolder.mMovieImageView);
+        Picasso.with(mContext).load(URL_IMAGE + URL_SIZE_W500 + movies.getPoster_path()).into(MoviesAdapterViewHolder.mMovieImageView);
     }
 
     /**

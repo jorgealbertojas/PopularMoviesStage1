@@ -4,13 +4,16 @@ package com.example.jorge.popularmoviesstage1.utilities;
  * Created by jorge on 27/09/2017.
  */
 
+
+/** class with const for support API */
 public class information {
 
-    public final static String API_KEY = "?api_key=24115bedf3566e17b46753fb8f29cbff";
-    //public final static String API_KEY = "";
+    // TODO put API KET HERE, YUO MUST PUT "?" FIRST
+    public final static String API_KEY = "?";
 
+    /** Returns Json order POPULAR*/
+    public final static String MIDLLE_POPULAR = "movie/popular";
 
-    public final static String MIDLE_POPULAR = "movie/popular";
-
-    public final static String MIDLE_TOP_RATED = "movie/top_rated";
+    /** Returns Json order Top rated*/
+    public final static String MIDLLE_TOP_RATED = "movie/top_rated";
 }

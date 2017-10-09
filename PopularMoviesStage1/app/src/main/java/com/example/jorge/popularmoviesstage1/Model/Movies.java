@@ -4,6 +4,8 @@ package com.example.jorge.popularmoviesstage1.Model;
  * Created by jorge on 06/10/2017.
  */
 
+/** Model for get API Movies with this field */
+
 public class Movies {
     private int id;
     private String title;

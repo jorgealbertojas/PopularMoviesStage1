@@ -8,6 +8,11 @@ public class Utilite {
 
     public final static String GITHUB_BASE_URL =
             "https://api.themoviedb.org/3/";
+
+    public final static String URL_IMAGE =  "http://image.tmdb.org/t/p/";
+
+    public final static String URL_SIZE_W154 =  "w154";
+    public final static String URL_SIZE_W500 =  "w500";
     /**
      * Field for PUT EXTRA.
      */

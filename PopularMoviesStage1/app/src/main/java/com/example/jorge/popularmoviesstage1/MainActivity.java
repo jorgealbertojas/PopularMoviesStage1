@@ -10,6 +10,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -22,9 +23,6 @@ import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.jorge.popularmoviesstage1.utilities.information.API_KEY;
-import static com.example.jorge.popularmoviesstage1.utilities.information.MIDLE_POPULAR;
 
 import com.example.jorge.popularmoviesstage1.adapter.MoviesAdapter.MoviesAdapterOnClickHandler;
 import com.example.jorge.popularmoviesstage1.utilities.Utilite;
@@ -45,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
     private final static int NUMBER_OF_COUMNS = 2;
 
-    private MoviesAdapter mMoviesAdapter;
+    MoviesAdapter mMoviesAdapter;
     private MoviesInterface mMoviesInterface;
 
     private RecyclerView mRecyclerView;
@@ -59,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
 
 
-        // COMPLETED (25) Get a reference to the ProgressBar using findViewById
+        // Get a reference to the ProgressBar using findViewById
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_numbers);
@@ -70,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
          * languages.
          */
 
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, NUMBER_OF_COUMNS));;
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, NUMBER_OF_COUMNS));
 
         /*
          * Use this setting to improve performance if you know that changes in content do not
@@ -99,17 +97,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
         /* Once all of our views are setup, we can load the weather data. */
         if (isOnline()) {
             createStackoverflowAPI();
-            mMoviesInterface.getMovies().enqueue(moviesCallback);
+            mMoviesInterface.getMoviesPOPULAR().enqueue(moviesCallback);
 
         }else{
-            Context contexto = getApplicationContext();
-            Toast toast = Toast.makeText(contexto, R.string.Error_Access,Toast.LENGTH_SHORT);
+            Context context = getApplicationContext();
+            Toast toast = Toast.makeText(context, R.string.Error_Access,Toast.LENGTH_SHORT);
             toast.show();
         }
     }
 
     /**
-     * Call Get Information Travel .
+     * Call Get Information Movies .
      */
     private Callback<ListWrapperMovies<Movies>> moviesCallback = new Callback<ListWrapperMovies<Movies>>() {
         @Override
@@ -119,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
                     List<Movies> data = new ArrayList<>();
                     data.addAll(response.body().results);
                     mRecyclerView.setAdapter(new MoviesAdapter(data));
+                    mLoadingIndicator.setVisibility(View.INVISIBLE);
 
                 } else {
                     Log.d("QuestionsCallback", "Code: " + response.code() + " Message: " + response.message());
@@ -128,8 +127,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
                 runOnUiThread(new Runnable(){
                     public void run(){
 
-                        Context contexto = getApplicationContext();
-                        Toast toast = Toast.makeText(contexto, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                        Context context = getApplicationContext();
+                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 });
@@ -138,12 +137,12 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
         @Override
         public void onFailure(Call<ListWrapperMovies<Movies>> call, Throwable t) {
-
+            Context contexto = getApplicationContext();
+            Toast toast = Toast.makeText(contexto, R.string.Error_json_data,Toast.LENGTH_SHORT);
+            toast.show();
         }
 
     };
-
-
 
     /**
      * checks if internet is ok .
@@ -153,33 +152,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
-
-
-
-    /**
-     * This method will make the View for the JSON data visible and
-     * hide the error message.
-     * <p>
-     * Since it is okay to redundantly set the visibility of a View, we don't
-     * need to check whether each view is currently visible or invisible.
-     */
-    private void showJsonDataView() {
-        // First, make sure the error is invisible
-       // mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-        // Then, make sure the JSON data is visible
-    }
-
-    /**
-     * This method will make the error message visible and hide the JSON
-     * View.
-     * <p>
-     * Since it is okay to redundantly set the visibility of a View, we don't
-     * need to check whether each view is currently visible or invisible.
-     */
-    private void showErrorMessage() {
-        // Then, show the error
-        //mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -194,27 +166,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
         intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_IMAGE_POSTER, movies.getPoster_path());
         intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_OVERVIEW, movies.getOverview());
         intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_VOTE_AVERAGE, movies.getVote_average());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_RELEASE_DATE, movies.getRelease_date());
         intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_ID, movies.getId());
         startActivity(intentToStartDetailActivity);
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemThatWasClickedId = item.getItemId();
-        if (itemThatWasClickedId == R.id.action_search) {
-           // makeGithubSearchQuery();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
+    /** Find Data the API Json with Retrofit */
     private void createStackoverflowAPI() {
         Gson gson = new GsonBuilder()
                 .create();
@@ -226,4 +184,39 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
         mMoviesInterface = retrofit.create(MoviesInterface.class);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        /* Use AppCompatActivity's method getMenuInflater to get a handle on the menu inflater */
+        MenuInflater inflater = getMenuInflater();
+        /* Use the inflater's inflate method to inflate our menu layout to this menu */
+        inflater.inflate(R.menu.opcao, menu);
+        /* Return true so that the menu is displayed in the Toolbar */
+        return true;
+    }
+
+
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_movie_popular) {
+            /** Get data JSON order Popular */
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+            createStackoverflowAPI();
+            mMoviesInterface.getMoviesPOPULAR().enqueue(moviesCallback);
+            return true;
+        }
+
+        if (id == R.id.action_movie_top) {
+            /** Get data JSON order Top Rated */
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+            createStackoverflowAPI();
+            mMoviesInterface.getMoviesTOP_RATED().enqueue(moviesCallback);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }
