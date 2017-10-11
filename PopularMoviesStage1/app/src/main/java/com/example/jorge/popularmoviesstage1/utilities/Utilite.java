@@ -1,5 +1,7 @@
 package com.example.jorge.popularmoviesstage1.utilities;
 
+import com.example.jorge.popularmoviesstage1.BuildConfig;
+
 /**
  * Created by jorge on 06/10/2017.
  */
@@ -8,6 +10,8 @@ public class Utilite {
 
     public final static String GITHUB_BASE_URL =
             "https://api.themoviedb.org/3/";
+
+    public final static String API_KEY = BuildConfig.API_KEY;
 
     public final static String URL_IMAGE =  "http://image.tmdb.org/t/p/";
 

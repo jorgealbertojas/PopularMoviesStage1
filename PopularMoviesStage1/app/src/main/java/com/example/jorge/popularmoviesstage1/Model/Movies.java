@@ -4,16 +4,24 @@ package com.example.jorge.popularmoviesstage1.Model;
  * Created by jorge on 06/10/2017.
  */
 
+import com.google.gson.annotations.SerializedName;
+
 /** Model for get API Movies with this field */
 
-public class Movies {
+public class
+Movies {
     private int id;
     private String title;
-    private String poster_path;
-    private String backdrop_path;
+    @SerializedName("poster_path")
+    private String posterPath;
+    @SerializedName("backdrop_path")
+    private String backdropPath;
     private String overview;
-    private float  vote_average;
-    private String release_date;
+    @SerializedName("vote_average")
+    private float  voteAverage;
+    @SerializedName("release_date")
+    private String releaseDate;
+
 
     public String getId() {
         return Integer.toString(id);
@@ -31,20 +39,21 @@ public class Movies {
         this.title = title;
     }
 
-    public String getPoster_path() {
-        return poster_path;
+
+    public String getPosterPath() {
+        return posterPath;
     }
 
-    public void setPoster_path(String poster_path) {
-        this.poster_path = poster_path;
+    public void setPosterPath(String poster_path) {
+        this.posterPath = poster_path;
     }
 
-    public String getBackdrop_path() {
-        return backdrop_path;
+    public String getBackdropPath() {
+        return backdropPath;
     }
 
-    public void setBackdrop_path(String backdrop_path) {
-        this.backdrop_path = backdrop_path;
+    public void setBackdropPath(String backdrop_path) {
+        this.backdropPath = backdrop_path;
     }
 
     public String getOverview() {
@@ -55,19 +64,19 @@ public class Movies {
         this.overview = overview;
     }
 
-    public String getVote_average() {
-        return  toString().valueOf(vote_average);
+    public String getVoteAverage() {
+        return  toString().valueOf(voteAverage);
     }
 
-    public void setVote_average(float vote_average) {
-        this.vote_average = vote_average;
+    public void setVoteAverage(float vote_average) {
+        this.voteAverage = vote_average;
     }
 
-    public String getRelease_date() {
-        return release_date;
+    public String getReleaseDate() {
+        return releaseDate;
     }
 
-    public void setRelease_date(String release_date) {
-        this.release_date = release_date;
+    public void setReleaseDate(String release_date) {
+        this.releaseDate = release_date;
     }
 }

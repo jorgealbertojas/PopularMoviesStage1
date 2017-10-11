@@ -1,5 +1,6 @@
 package com.example.jorge.popularmoviesstage1.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,9 @@ import com.example.jorge.popularmoviesstage1.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_IMAGE;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_SIZE_W500;
@@ -27,6 +31,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     private List<Movies> data;
 
     private Context mContext;
+
+
 
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
@@ -59,7 +65,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
      * Cache of the children views for a forecast list item.
      */
     public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public final ImageView mMovieImageView;
+
+        @BindView(R.id.iv_imageMovies) ImageView mMovieImageView;
 
         public MoviesAdapterViewHolder(View view) {
             super(view);
@@ -74,6 +81,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
          */
         @Override
         public void onClick(View v) {
+            ButterKnife.bind((Activity) v.getContext());
             int adapterPosition = getAdapterPosition();
             Movies movie = data.get(adapterPosition);
             mClickHandler.onClick(movie);
@@ -115,7 +123,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
         Movies movies = ((Movies) data.get(position));
 
-        Picasso.with(mContext).load(URL_IMAGE + URL_SIZE_W500 + movies.getPoster_path()).into(MoviesAdapterViewHolder.mMovieImageView);
+        Picasso.with(mContext)
+                .load(URL_IMAGE + URL_SIZE_W500 + movies.getPosterPath())
+                .placeholder(R.mipmap.ic_launcher)
+                .error(R.drawable.error)
+                .into(MoviesAdapterViewHolder.mMovieImageView);
     }
 
     /**

@@ -6,10 +6,8 @@ package com.example.jorge.popularmoviesstage1.utilities;
 
 
 /** class with const for support API */
-public class information {
+public class Information {
 
-    // TODO put API KET HERE, YUO MUST PUT "?" FIRST
-    public final static String API_KEY = "?";
 
     /** Returns Json order POPULAR*/
     public final static String MIDLLE_POPULAR = "movie/popular";

@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,7 +17,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.jorge.popularmoviesstage1.Interface.MoviesInterface;
+import com.example.jorge.popularmoviesstage1.interfaceMovies.MoviesInterface;
 import com.example.jorge.popularmoviesstage1.Model.Movies;
 import com.example.jorge.popularmoviesstage1.adapter.MoviesAdapter;
 import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
@@ -40,8 +41,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * {@link android.support.v7.widget.RecyclerView}
  */
 public class MainActivity extends AppCompatActivity implements MoviesAdapterOnClickHandler {
-
-    private final static int NUMBER_OF_COUMNS = 2;
 
     MoviesAdapter mMoviesAdapter;
     private MoviesInterface mMoviesInterface;
@@ -68,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
          * languages.
          */
 
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, NUMBER_OF_COUMNS));
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns()));
 
         /*
          * Use this setting to improve performance if you know that changes in content do not
@@ -162,11 +161,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
         Class destinationClass = DetailActivity.class;
         Intent intentToStartDetailActivity = new Intent(context, destinationClass);
         intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_TITLE, movies.getTitle());
-        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_IMAGE_BACKDROP, movies.getBackdrop_path());
-        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_IMAGE_POSTER, movies.getPoster_path());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_IMAGE_BACKDROP, movies.getBackdropPath());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_IMAGE_POSTER, movies.getPosterPath());
         intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_OVERVIEW, movies.getOverview());
-        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_VOTE_AVERAGE, movies.getVote_average());
-        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_RELEASE_DATE, movies.getRelease_date());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_VOTE_AVERAGE, movies.getVoteAverage());
+        intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_RELEASE_DATE, movies.getReleaseDate());
         intentToStartDetailActivity.putExtra(Utilite.PUT_EXTRA_ID, movies.getId());
         startActivity(intentToStartDetailActivity);
     }
@@ -181,6 +180,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
                 .baseUrl(Utilite.GITHUB_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
+
+
 
         mMoviesInterface = retrofit.create(MoviesInterface.class);
     }
@@ -218,5 +219,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
         return super.onOptionsItemSelected(item);
     }
+
+    private int numberOfColumns() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        // You can change this divider to adjust the size of the poster
+        int widthDivider = 400;
+        int width = displayMetrics.widthPixels;
+        int nColumns = width / widthDivider;
+        if (nColumns < 2) return 2;
+        return nColumns;
+    }
+
 
 }
