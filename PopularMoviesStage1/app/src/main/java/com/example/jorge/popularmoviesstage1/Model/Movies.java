@@ -1,4 +1,4 @@
-package com.example.jorge.popularmoviesstage1.Model;
+package com.example.jorge.popularmoviesstage1.model;
 
 /**
  * Created by jorge on 06/10/2017.

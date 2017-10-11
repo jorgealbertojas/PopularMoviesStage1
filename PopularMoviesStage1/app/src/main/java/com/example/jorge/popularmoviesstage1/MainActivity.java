@@ -18,7 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.jorge.popularmoviesstage1.interfaceMovies.MoviesInterface;
-import com.example.jorge.popularmoviesstage1.Model.Movies;
+import com.example.jorge.popularmoviesstage1.model.Movies;
 import com.example.jorge.popularmoviesstage1.adapter.MoviesAdapter;
 import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
 
