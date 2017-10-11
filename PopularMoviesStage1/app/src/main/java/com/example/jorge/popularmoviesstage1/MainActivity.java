@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
     }
 
     /**
-     * Call Get Information Movies .
+     * Call Get InformationNew Movies .
      */
     private Callback<ListWrapperMovies<Movies>> moviesCallback = new Callback<ListWrapperMovies<Movies>>() {
         @Override

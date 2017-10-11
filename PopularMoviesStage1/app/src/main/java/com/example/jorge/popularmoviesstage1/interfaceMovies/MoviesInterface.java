@@ -7,8 +7,8 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.API_KEY;
-import static com.example.jorge.popularmoviesstage1.utilities.Information.MIDLLE_POPULAR;
-import static com.example.jorge.popularmoviesstage1.utilities.Information.MIDLLE_TOP_RATED;
+import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.MIDLLE_POPULAR;
+import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.MIDLLE_TOP_RATED;
 
 /**
  * Created by jorge on 06/10/2017.

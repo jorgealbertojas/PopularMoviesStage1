@@ -6,7 +6,7 @@ package com.example.jorge.popularmoviesstage1.utilities;
 
 
 /** class with const for support API */
-public class Information {
+public class InformationNew {
 
 
     /** Returns Json order POPULARtt*/
