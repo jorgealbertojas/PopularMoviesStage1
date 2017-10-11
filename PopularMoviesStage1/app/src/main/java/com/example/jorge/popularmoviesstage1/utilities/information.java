@@ -9,7 +9,7 @@ package com.example.jorge.popularmoviesstage1.utilities;
 public class Information {
 
 
-    /** Returns Json order POPULAR*/
+    /** Returns Json order POPULARtt*/
     public final static String MIDLLE_POPULAR = "movie/popular";
 
     /** Returns Json order Top rated*/
