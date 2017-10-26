@@ -27,5 +27,4 @@ public interface MoviesInterface {
     @GET(MIDLLE_TOP_RATED + API_KEY)
     Call<ListWrapperMovies<Movies>> getMoviesTOP_RATED();
 
-
 }

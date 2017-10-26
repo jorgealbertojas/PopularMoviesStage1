@@ -79,6 +79,13 @@
             android:paddingRight="20dp"
             android:ems="10" />
 
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_trailer"
+            android:layout_below="@+id/tv_overview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
     </RelativeLayout>
 
 </ScrollView>
