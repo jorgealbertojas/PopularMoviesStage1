@@ -18,10 +18,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.jorge.popularmoviesstage1.adapter.MoviesAdapter;
+import com.example.jorge.popularmoviesstage1.adapter.ReviewsAdapter;
 import com.example.jorge.popularmoviesstage1.adapter.TrailerAdapter;
 import com.example.jorge.popularmoviesstage1.interfaceMovies.MoviesInterface;
+import com.example.jorge.popularmoviesstage1.interfaceMovies.ReviewsInterface;
 import com.example.jorge.popularmoviesstage1.interfaceMovies.TrailerInterface;
 import com.example.jorge.popularmoviesstage1.model.Movies;
+import com.example.jorge.popularmoviesstage1.model.Reviews;
 import com.example.jorge.popularmoviesstage1.model.Trailer;
 import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
 import com.example.jorge.popularmoviesstage1.utilities.Utilite;
@@ -42,12 +45,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.MOVIE;
+import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.REVIEWS;
 import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.VIDEO;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_IMAGE;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_SIZE_W154;
 
 /** Activity for show detail movies */
-public class DetailActivity extends AppCompatActivity implements TrailerAdapter.TrailerAdapterOnClickHandler {
+public class DetailActivity extends AppCompatActivity implements TrailerAdapter.TrailerAdapterOnClickHandler, ReviewsAdapter.ReviewsAdapterOnClickHandler {
 
 
     String mId;
@@ -65,8 +69,11 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     @BindView(R.id.tv_release_date) TextView  tvReleaseDate;
 
     TrailerAdapter mTrailerAdapter;
+    ReviewsAdapter mReviewAdapter;
     private TrailerInterface mTrailerInterface;
+    private ReviewsInterface mReviewsInterface;
     private RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerViewReviews;
 
     /** Create activity Detail */
     @Override
@@ -123,37 +130,30 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
     private void configurationRecyclerView(String mId){
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_trailer);
-
-        /*
-         * LinearLayoutManager can support HORIZONTAL or VERTICAL orientations. The reverse layout
-         * parameter is useful mostly for HORIZONTAL layouts that should reverse for right to left
-         * languages.
-         */
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-
-        /* setLayoutManager associates the LayoutManager we created above with our RecyclerView */
         mRecyclerView.setLayoutManager(layoutManager);
-              /*
-         * Use this setting to improve performance if you know that changes in content do not
-         * change the child layout size in the RecyclerView
-         */
         mRecyclerView.setHasFixedSize(true);
-
-        /*
-         * The ForecastAdapter is responsible for linking our weather data with the Views that
-         * will end up displaying our weather data.
-         */
         mTrailerAdapter = new TrailerAdapter(this);
-
-        /* Setting the adapter attaches it to the RecyclerView in our layout. */
         mRecyclerView.setAdapter(mTrailerAdapter);
+
+
+        mRecyclerViewReviews = (RecyclerView) findViewById(R.id.rv_reviews);
+        LinearLayoutManager layoutManagerReviews =
+                new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mRecyclerViewReviews.setLayoutManager(layoutManagerReviews);
+        mRecyclerViewReviews.setHasFixedSize(true);
+        mReviewAdapter = new ReviewsAdapter(this);
+        mRecyclerViewReviews.setAdapter(mTrailerAdapter);
 
 
         /* Once all of our views are setup, we can load the weather data. */
         if (isOnline()) {
             createStackoverflowAPI(mId);
             mTrailerInterface.getTrailer().enqueue(trailerCallback);
+
+            createStackoverflowAPIReview(mId);
+            mReviewsInterface.getReviews().enqueue(reviewCallback);
 
         }else{
             Context context = getApplicationContext();
@@ -199,6 +199,40 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
     };
 
+    private Callback<ListWrapperMovies<Reviews>> reviewCallback = new Callback<ListWrapperMovies<Reviews>>() {
+        @Override
+        public void onResponse(Call<ListWrapperMovies<Reviews>> call, Response<ListWrapperMovies<Reviews>> response) {
+            try{
+                if (response.isSuccessful()) {
+                    List<Reviews> data = new ArrayList<>();
+                    data.addAll(response.body().results);
+                    mRecyclerViewReviews.setAdapter(new ReviewsAdapter(data));
+
+
+                } else {
+                    Log.d("QuestionsCallback", "Code: " + response.code() + " Message: " + response.message());
+                }
+            }catch(NullPointerException e){
+                System.out.println("onActivityResult consume crashed");
+                runOnUiThread(new Runnable(){
+                    public void run(){
+                        Context context = getApplicationContext();
+                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onFailure(Call<ListWrapperMovies<Reviews>> call, Throwable t) {
+            Context contexto = getApplicationContext();
+            Toast toast = Toast.makeText(contexto, R.string.Error_json_data,Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
+    };
+
     private boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -212,8 +246,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                //.baseUrl(Utilite.GITHUB_BASE_URL + MOVIE + ID_TRAILER + "/")
-                .baseUrl(Utilite.GITHUB_BASE_URL)
+                .baseUrl(Utilite.GITHUB_BASE_URL + MOVIE + ID_TRAILER + "/" )
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -222,9 +255,28 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         mTrailerInterface = retrofit.create(TrailerInterface.class);
     }
 
+    private void createStackoverflowAPIReview(String ID_TRAILER) {
+        Gson gson = new GsonBuilder()
+                .create();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Utilite.GITHUB_BASE_URL + MOVIE + ID_TRAILER + "/" )
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+
+
+        mReviewsInterface = retrofit.create(ReviewsInterface.class);
+    }
+
 
     @Override
     public void onClick(Trailer trailer) {
         playVideo(trailer.getKey());
+    }
+
+    @Override
+    public void onClick(Reviews reviews) {
+
     }
 }

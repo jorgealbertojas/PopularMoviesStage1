@@ -13,7 +13,10 @@ public class InformationNew {
     public final static String MOVIE = "movie/";
 
     /** Returns Json order VIDEO*/
-    public final static String VIDEO = "/videos";
+    public final static String VIDEO = "videos";
+
+    /** Returns Json order VIDEO*/
+    public final static String REVIEWS = "reviews";
 
     /** Returns Json order POPULAR*/
     public final static String MIDLLE_POPULAR = "movie/popular";
