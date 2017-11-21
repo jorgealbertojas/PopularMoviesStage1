@@ -31,5 +31,10 @@
         android:orderInCategory="2"
         android:title="@string/movie_top"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_movie_favorite"
+        android:orderInCategory="3"
+        android:title="@string/movie_favorite"
+        app:showAsAction="never"/>
 
 </menu>
