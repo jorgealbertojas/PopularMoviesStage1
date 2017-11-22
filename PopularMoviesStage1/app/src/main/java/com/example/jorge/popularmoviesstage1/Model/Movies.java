@@ -4,6 +4,7 @@ package com.example.jorge.popularmoviesstage1.model;
  * Created by jorge on 06/10/2017.
  */
 
+// mew
 import com.google.gson.annotations.SerializedName;
 
 /** Model for get API Movies with this field */
