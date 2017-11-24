@@ -14,7 +14,9 @@ import static com.example.jorge.popularmoviesstage1.utilities.Utilite.API_KEY;
  */
 
 public interface ReviewsInterface {
-    /** Get order Popular API Retrofit */
+    /**
+     * Get order Popular API Retrofit
+     */
     @GET(REVIEWS + API_KEY)
     Call<ListWrapperMovies<Reviews>> getReviews();
 }

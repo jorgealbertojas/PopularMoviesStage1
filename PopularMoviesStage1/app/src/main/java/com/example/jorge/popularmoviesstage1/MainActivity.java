@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import com.example.jorge.popularmoviesstage1.data.StarContract;
 import com.example.jorge.popularmoviesstage1.data.StarDbHelper;
 import com.example.jorge.popularmoviesstage1.interfaceMovies.MoviesInterface;
@@ -25,6 +26,7 @@ import com.example.jorge.popularmoviesstage1.model.Movies;
 import com.example.jorge.popularmoviesstage1.adapter.MoviesAdapter;
 import com.example.jorge.popularmoviesstage1.utilities.Common;
 import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +48,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * {@link android.support.v7.widget.RecyclerView}
  */
 public class MainActivity extends AppCompatActivity implements MoviesAdapterOnClickHandler {
-
 
 
     private final String KEY_RECYCLER_STATE = "recycler_state";
@@ -121,16 +122,16 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
                 Toast toast = Toast.makeText(context, R.string.Error_Access, Toast.LENGTH_SHORT);
                 toast.show();
             }
-        }else{
+        } else {
             initRecyclerView();
             mListState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
             mListMoviesAdapter = (ArrayList<Movies>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE);
             mRecyclerView.getLayoutManager().onRestoreInstanceState(mListState);
 
             ContentResolver sunshineContentResolver = mContext.getContentResolver();
-            Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI_GET_ALL,null,null,null,null);
+            Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI_GET_ALL, null, null, null, null);
 
-            mMoviesAdapter = new MoviesAdapter(mListMoviesAdapter,cursor,mContext);
+            mMoviesAdapter = new MoviesAdapter(mListMoviesAdapter, cursor, mContext);
 
             mRecyclerView.setAdapter(mMoviesAdapter);
         }
@@ -142,28 +143,28 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
     private Callback<ListWrapperMovies<Movies>> moviesCallback = new Callback<ListWrapperMovies<Movies>>() {
         @Override
         public void onResponse(Call<ListWrapperMovies<Movies>> call, Response<ListWrapperMovies<Movies>> response) {
-            try{
+            try {
                 if (response.isSuccessful()) {
                     List<Movies> data = new ArrayList<>();
                     data.addAll(response.body().results);
 
                     ContentResolver sunshineContentResolver = mContext.getContentResolver();
-                    Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI_GET_ALL,null,null,null,null);
+                    Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI_GET_ALL, null, null, null, null);
 
-                    mMoviesAdapter = new MoviesAdapter(data,cursor,mContext);
+                    mMoviesAdapter = new MoviesAdapter(data, cursor, mContext);
                     mRecyclerView.setAdapter(mMoviesAdapter);
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
 
                 } else {
                     Log.d("QuestionsCallback", "Code: " + response.code() + " Message: " + response.message());
                 }
-            }catch(NullPointerException e){
+            } catch (NullPointerException e) {
                 System.out.println("onActivityResult consume crashed");
-                runOnUiThread(new Runnable(){
-                    public void run(){
+                runOnUiThread(new Runnable() {
+                    public void run() {
 
                         Context context = getApplicationContext();
-                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty, Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 });
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
         @Override
         public void onFailure(Call<ListWrapperMovies<Movies>> call, Throwable t) {
             Context context = getApplicationContext();
-            Toast toast = Toast.makeText(context, R.string.Error_json_data,Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(context, R.string.Error_json_data, Toast.LENGTH_SHORT);
             toast.show();
         }
 
@@ -198,7 +199,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
     }
 
 
-    /** Find Data the API Json with Retrofit */
+    /**
+     * Find Data the API Json with Retrofit
+     */
     private void createStackOverflowAPI() {
         Gson gson = new GsonBuilder()
                 .create();
@@ -207,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
                 .baseUrl(Utilite.GITHUB_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
-
 
 
         mMoviesInterface = retrofit.create(MoviesInterface.class);
@@ -222,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
         /* Return true so that the menu is displayed in the Toolbar */
         return true;
     }
-
 
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -247,31 +248,31 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
         if (id == R.id.action_movie_favorite) {
             /** Get data JSON order Top Rated */
-            try{
+            try {
                 mListMoviesAdapter = (ArrayList<Movies>) mMoviesAdapter.getData();
                 ArrayList<Movies> listMoviesAdapterTemp = new ArrayList<Movies>();
                 int i = 0;
-                while (i <  mListMoviesAdapter.size()){
+                while (i < mListMoviesAdapter.size()) {
 
-                    String id_num =  mListMoviesAdapter.get(i).getId();
+                    String id_num = mListMoviesAdapter.get(i).getId();
                     ContentResolver sunshineContentResolver = mContext.getContentResolver();
-                    Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id_num,null,null);
-                    if (cursor.getCount() > 0 ) {
+                    Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI, null, id_num, null, null);
+                    if (cursor.getCount() > 0) {
                         listMoviesAdapterTemp.add(mListMoviesAdapter.get(i));
                     }
                     i++;
                 }
 
                 ContentResolver sunshineContentResolver = mContext.getContentResolver();
-                Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI_GET_ALL,null,null,null,null);
-                mMoviesAdapter = new MoviesAdapter(listMoviesAdapterTemp,cursor,mContext);
+                Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI_GET_ALL, null, null, null, null);
+                mMoviesAdapter = new MoviesAdapter(listMoviesAdapterTemp, cursor, mContext);
                 mRecyclerView.setAdapter(mMoviesAdapter);
-            }catch(NullPointerException e){
+            } catch (NullPointerException e) {
                 System.out.println("onActivityResult consume crashed");
-                runOnUiThread(new Runnable(){
-                    public void run(){
+                runOnUiThread(new Runnable() {
+                    public void run() {
                         Context context = getApplicationContext();
-                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty, Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 });
@@ -296,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
     }
 
 
-    private void initRecyclerView(){
+    private void initRecyclerView() {
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_numbers);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns()));
         mRecyclerView.setHasFixedSize(true);
@@ -304,8 +305,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
 
         // save RecyclerView state
@@ -317,8 +317,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
 
         // restore RecyclerView state

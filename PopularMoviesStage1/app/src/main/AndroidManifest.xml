@@ -34,7 +34,7 @@
             android:authorities="com.example.jorge.popularmoviesstage1"
             android:exported="false"
             android:protectionLevel="signature"
-            android:syncable="true"/>
+            android:syncable="true" />
 
     </application>
 

@@ -10,7 +10,9 @@ import android.widget.TextView;
 
 import com.example.jorge.popularmoviesstage1.R;
 import com.example.jorge.popularmoviesstage1.model.Trailer;
+
 import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -21,7 +23,7 @@ import butterknife.ButterKnife;
 /**
  * {@link TrailerAdapter} exposes a list of weather forecasts to a
  * {@link android.support.v7.widget.RecyclerView}
-*/
+ */
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerAdapterViewHolder> {
 
@@ -115,8 +117,8 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
      * passed into us.
      *
      * @param TrailerAdapterViewHolder The ViewHolder which should be updated to represent the
-     *                                  contents of the item at the given position in the data set.
-     * @param position                  The position of the item within the adapter's data set.
+     *                                 contents of the item at the given position in the data set.
+     * @param position                 The position of the item within the adapter's data set.
      */
     @Override
     public void onBindViewHolder(TrailerAdapter.TrailerAdapterViewHolder TrailerAdapterViewHolder, int position) {
@@ -144,7 +146,6 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
     public List<Trailer> getData() {
         return data;
     }
-
 
 
 }

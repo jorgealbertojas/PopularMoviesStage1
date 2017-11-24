@@ -5,9 +5,12 @@ package com.example.jorge.popularmoviesstage1.model;
  */
 
 // mew
+
 import com.google.gson.annotations.SerializedName;
 
-/** Model for get API Movies with this field */
+/**
+ * Model for get API Movies with this field
+ */
 
 public class
 Movies {
@@ -19,7 +22,7 @@ Movies {
     private String backdropPath;
     private String overview;
     @SerializedName("vote_average")
-    private float  voteAverage;
+    private float voteAverage;
     @SerializedName("release_date")
     private String releaseDate;
 
@@ -66,7 +69,7 @@ Movies {
     }
 
     public String getVoteAverage() {
-        return  toString().valueOf(voteAverage);
+        return toString().valueOf(voteAverage);
     }
 
     public void setVoteAverage(float vote_average) {

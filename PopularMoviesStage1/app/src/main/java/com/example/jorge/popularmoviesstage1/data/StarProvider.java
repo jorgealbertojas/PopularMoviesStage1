@@ -20,7 +20,9 @@ import static com.example.jorge.popularmoviesstage1.data.StarContract.StarEntry.
  * Created by jorge on 23/11/2017.
  */
 
-/** Create the class (ContentProvider) for support the update in BD SQLLite**/
+/**
+ * Create the class (ContentProvider) for support the update in BD SQLLite
+ **/
 
 public class StarProvider extends ContentProvider {
 
@@ -33,7 +35,9 @@ public class StarProvider extends ContentProvider {
         return true;
     }
 
-    /** Insert Star in DB SQLLite**/
+    /**
+     * Insert Star in DB SQLLite
+     **/
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -59,9 +63,9 @@ public class StarProvider extends ContentProvider {
                 }
 
                 if (rowsInserted > 0) {
-                    try{
+                    try {
                         getContext().getContentResolver().notifyChange(uri, null);
-                    }catch(NullPointerException e){
+                    } catch (NullPointerException e) {
                         System.out.println("onActivityResult consume crashed");
                     }
                 }
@@ -73,7 +77,9 @@ public class StarProvider extends ContentProvider {
         }
     }
 
-    /** Queries Star for get information of the DB SQLLite**/
+    /**
+     * Queries Star for get information of the DB SQLLite
+     **/
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
@@ -89,11 +95,11 @@ public class StarProvider extends ContentProvider {
         switch (uriType) {
             case StarContract.StarEntry.STAR_CHECK:
 
-                cursor = mDb.rawQuery(" SELECT " +  COLUMN_ID + " FROM " + TABLE_NAME + " WHERE ID = ? ", new String[]{selection});
+                cursor = mDb.rawQuery(" SELECT " + COLUMN_ID + " FROM " + TABLE_NAME + " WHERE ID = ? ", new String[]{selection});
                 break;
             case StarContract.StarEntry.STAR_GET_ALL:
 
-                cursor = 	mDb.rawQuery(" SELECT " +  COLUMN_ID + " FROM " + TABLE_NAME , null);
+                cursor = mDb.rawQuery(" SELECT " + COLUMN_ID + " FROM " + TABLE_NAME, null);
                 break;
             default:
 
@@ -102,7 +108,6 @@ public class StarProvider extends ContentProvider {
         }
 
         return cursor;
-
 
 
     }
@@ -119,7 +124,9 @@ public class StarProvider extends ContentProvider {
         return null;
     }
 
-    /** Delete Star in DB SQLLite**/
+    /**
+     * Delete Star in DB SQLLite
+     **/
     @Override
     public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -131,7 +138,7 @@ public class StarProvider extends ContentProvider {
             case StarContract.StarEntry.STAR_DELETE:
                 db.beginTransaction();
                 int rowsInserted = 0;
-                try{
+                try {
                     try {
                         for (String value : strings) {
 
@@ -148,7 +155,7 @@ public class StarProvider extends ContentProvider {
                     if (rowsInserted > 0) {
                         getContext().getContentResolver().notifyChange(uri, null);
                     }
-                }catch(NullPointerException e){
+                } catch (NullPointerException e) {
                     System.out.println("onActivityResult consume crashed");
 
                 }
@@ -164,9 +171,6 @@ public class StarProvider extends ContentProvider {
     public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
         return 0;
     }
-
-
-
 
 
 }

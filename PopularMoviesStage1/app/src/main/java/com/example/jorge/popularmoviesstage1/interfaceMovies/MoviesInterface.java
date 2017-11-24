@@ -14,16 +14,22 @@ import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.MID
  * Created by jorge on 06/10/2017.
  */
 
-/** * i
- * Interface for get JSON with Retrofit  */
+/**
+ * i
+ * Interface for get JSON with Retrofit
+ */
 
 public interface MoviesInterface {
 
-    /** Get order Popular API Retrofit */
+    /**
+     * Get order Popular API Retrofit
+     */
     @GET(MIDLLE_POPULAR + API_KEY)
     Call<ListWrapperMovies<Movies>> getMoviesPOPULAR();
 
-    /** Get order Top Rated API Retrofit*/
+    /**
+     * Get order Top Rated API Retrofit
+     */
     @GET(MIDLLE_TOP_RATED + API_KEY)
     Call<ListWrapperMovies<Movies>> getMoviesTOP_RATED();
 

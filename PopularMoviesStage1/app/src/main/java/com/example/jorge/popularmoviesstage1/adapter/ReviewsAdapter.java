@@ -10,7 +10,9 @@ import android.widget.TextView;
 
 import com.example.jorge.popularmoviesstage1.R;
 import com.example.jorge.popularmoviesstage1.model.Reviews;
+
 import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -18,12 +20,11 @@ import butterknife.ButterKnife;
  * Created by jorge on 07/11/2017.
  */
 
-public class ReviewsAdapter  extends RecyclerView.Adapter<ReviewsAdapter.ReviewsAdapterViewHolder> {
+public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewsAdapterViewHolder> {
 
     private List<Reviews> data;
 
     private Context mContext;
-
 
 
     /*
@@ -71,8 +72,6 @@ public class ReviewsAdapter  extends RecyclerView.Adapter<ReviewsAdapter.Reviews
 
         @BindView(R.id.tv_url)
         TextView mUrlTextView;
-
-
 
 
         public ReviewsAdapterViewHolder(View view) {
@@ -126,8 +125,8 @@ public class ReviewsAdapter  extends RecyclerView.Adapter<ReviewsAdapter.Reviews
      * passed into us.
      *
      * @param ReviewsAdapterViewHolder The ViewHolder which should be updated to represent the
-     *                                  contents of the item at the given position in the data set.
-     * @param position                  The position of the item within the adapter's data set.
+     *                                 contents of the item at the given position in the data set.
+     * @param position                 The position of the item within the adapter's data set.
      */
     @Override
     public void onBindViewHolder(ReviewsAdapter.ReviewsAdapterViewHolder ReviewsAdapterViewHolder, int position) {
@@ -138,7 +137,6 @@ public class ReviewsAdapter  extends RecyclerView.Adapter<ReviewsAdapter.Reviews
         ReviewsAdapterViewHolder.mAuthorTextView.setText(reviews.getAuthor());
         ReviewsAdapterViewHolder.mContentTextView.setText(reviews.getContent());
         ReviewsAdapterViewHolder.mUrlTextView.setText(reviews.getUrl());
-
 
 
     }

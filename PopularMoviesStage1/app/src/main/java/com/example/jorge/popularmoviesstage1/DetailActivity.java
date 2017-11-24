@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.jorge.popularmoviesstage1.adapter.ReviewsAdapter;
 import com.example.jorge.popularmoviesstage1.adapter.TrailerAdapter;
 import com.example.jorge.popularmoviesstage1.data.StarContract;
@@ -49,7 +50,9 @@ import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.MOV
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_IMAGE;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_SIZE_W154;
 
-/** Activity for show detail movies */
+/**
+ * Activity for show detail movies
+ */
 public class DetailActivity extends AppCompatActivity implements TrailerAdapter.TrailerAdapterOnClickHandler, ReviewsAdapter.ReviewsAdapterOnClickHandler {
 
 
@@ -66,14 +69,21 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     String mVoteAverage;
     String mReleaseDate;
 
-    @BindView(R.id.iv_imageMovies) ImageView ivImageMovies;
-    @BindView(R.id.tv_id) TextView  tvId;
-    @BindView(R.id.tv_Title) TextView  tvTitle;
-    @BindView(R.id.tv_overview) TextView  tvOverview;
-    @BindView(R.id.tv_vote_average) TextView  tvVoteAverage;
-    @BindView(R.id.tv_release_date) TextView  tvReleaseDate;
+    @BindView(R.id.iv_imageMovies)
+    ImageView ivImageMovies;
+    @BindView(R.id.tv_id)
+    TextView tvId;
+    @BindView(R.id.tv_Title)
+    TextView tvTitle;
+    @BindView(R.id.tv_overview)
+    TextView tvOverview;
+    @BindView(R.id.tv_vote_average)
+    TextView tvVoteAverage;
+    @BindView(R.id.tv_release_date)
+    TextView tvReleaseDate;
 
-    @BindView(R.id.iv_star_detail) ImageView ivImageStarDetail;
+    @BindView(R.id.iv_star_detail)
+    ImageView ivImageStarDetail;
 
     TrailerAdapter mTrailerAdapter;
     ReviewsAdapter mReviewAdapter;
@@ -96,7 +106,9 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     private SQLiteDatabase mDb;
 
 
-    /** Create activity Detail */
+    /**
+     * Create activity Detail
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,9 +119,9 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         mPosterPath = extras.getString(Utilite.PUT_EXTRA_IMAGE_POSTER);
         mTitle = extras.getString(Utilite.PUT_EXTRA_TITLE);
         mOverview = extras.getString(Utilite.PUT_EXTRA_OVERVIEW);
-        mVoteAverage =  extras.getString(Utilite.PUT_EXTRA_VOTE_AVERAGE);
-        mReleaseDate =  extras.getString(Utilite.PUT_EXTRA_RELEASE_DATE);
-        mId =  extras.getString(Utilite.PUT_EXTRA_ID);
+        mVoteAverage = extras.getString(Utilite.PUT_EXTRA_VOTE_AVERAGE);
+        mReleaseDate = extras.getString(Utilite.PUT_EXTRA_RELEASE_DATE);
+        mId = extras.getString(Utilite.PUT_EXTRA_ID);
 
         /** Get field the XML Detail for show data Movies */
         ButterKnife.bind(this);
@@ -128,13 +140,13 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
         ivImageStarDetail.setTag(mId);
 
-        putStarInit(ivImageStarDetail,ivImageStarDetail.getTag().toString());
+        putStarInit(ivImageStarDetail, ivImageStarDetail.getTag().toString());
 
         ivImageStarDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                putStar((ImageView) view,view.getTag().toString());
+                putStar((ImageView) view, view.getTag().toString());
 
             }
         });
@@ -161,7 +173,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
             configurationRecyclerView(mId);
 
-        }else{
+        } else {
             initRecyclerViewTrailer();
             mListStateTrailer = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE_TRAILER);
             mListTrailerAdapter = (ArrayList<Trailer>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE_TRAILER);
@@ -181,7 +193,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
     }
 
-    public void playVideo(String key){
+    public void playVideo(String key) {
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
 
@@ -202,7 +214,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     }
 
 
-    private void initRecyclerViewTrailer(){
+    private void initRecyclerViewTrailer() {
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_trailer);
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -222,8 +234,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     }
 
     private void
-    configurationRecyclerView(String mId){
-
+    configurationRecyclerView(String mId) {
 
 
         mRecyclerView.setAdapter(mTrailerAdapter);
@@ -240,9 +251,9 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
             createStackOverflowAPIReview(mId);
             mReviewsInterface.getReviews().enqueue(reviewCallback);
 
-        }else{
+        } else {
             Context context = getApplicationContext();
-            Toast toast = Toast.makeText(context, R.string.Error_Access,Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(context, R.string.Error_Access, Toast.LENGTH_SHORT);
             toast.show();
         }
     }
@@ -253,7 +264,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     private Callback<ListWrapperMovies<Trailer>> trailerCallback = new Callback<ListWrapperMovies<Trailer>>() {
         @Override
         public void onResponse(Call<ListWrapperMovies<Trailer>> call, Response<ListWrapperMovies<Trailer>> response) {
-            try{
+            try {
                 if (response.isSuccessful()) {
                     List<Trailer> data = new ArrayList<>();
                     data.addAll(response.body().results);
@@ -264,12 +275,12 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 } else {
                     Log.d("QuestionsCallback", "Code: " + response.code() + " Message: " + response.message());
                 }
-            }catch(NullPointerException e){
+            } catch (NullPointerException e) {
                 System.out.println("onActivityResult consume crashed");
-                runOnUiThread(new Runnable(){
-                    public void run(){
+                runOnUiThread(new Runnable() {
+                    public void run() {
                         Context context = getApplicationContext();
-                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty, Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 });
@@ -279,7 +290,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         @Override
         public void onFailure(Call<ListWrapperMovies<Trailer>> call, Throwable t) {
             Context context = getApplicationContext();
-            Toast toast = Toast.makeText(context, R.string.Error_json_data,Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(context, R.string.Error_json_data, Toast.LENGTH_SHORT);
             toast.show();
         }
 
@@ -288,7 +299,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     private Callback<ListWrapperMovies<Reviews>> reviewCallback = new Callback<ListWrapperMovies<Reviews>>() {
         @Override
         public void onResponse(Call<ListWrapperMovies<Reviews>> call, Response<ListWrapperMovies<Reviews>> response) {
-            try{
+            try {
                 if (response.isSuccessful()) {
                     List<Reviews> data = new ArrayList<>();
                     data.addAll(response.body().results);
@@ -299,12 +310,12 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 } else {
                     Log.d("QuestionsCallback", "Code: " + response.code() + " Message: " + response.message());
                 }
-            }catch(NullPointerException e){
+            } catch (NullPointerException e) {
                 System.out.println("onActivityResult consume crashed");
-                runOnUiThread(new Runnable(){
-                    public void run(){
+                runOnUiThread(new Runnable() {
+                    public void run() {
                         Context context = getApplicationContext();
-                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty, Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 });
@@ -314,23 +325,24 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         @Override
         public void onFailure(Call<ListWrapperMovies<Reviews>> call, Throwable t) {
             Context context = getApplicationContext();
-            Toast toast = Toast.makeText(context, R.string.Error_json_data,Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(context, R.string.Error_json_data, Toast.LENGTH_SHORT);
             toast.show();
         }
 
     };
 
 
-    /** Find Data the API Json with Retrofit */
+    /**
+     * Find Data the API Json with Retrofit
+     */
     private void createStackOverflowAPI(String ID_TRAILER) {
         Gson gson = new GsonBuilder()
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Utilite.GITHUB_BASE_URL + MOVIE + ID_TRAILER + "/" )
+                .baseUrl(Utilite.GITHUB_BASE_URL + MOVIE + ID_TRAILER + "/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
-
 
 
         mTrailerInterface = retrofit.create(TrailerInterface.class);
@@ -341,10 +353,9 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Utilite.GITHUB_BASE_URL + MOVIE + ID_TRAILER + "/" )
+                .baseUrl(Utilite.GITHUB_BASE_URL + MOVIE + ID_TRAILER + "/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
-
 
 
         mReviewsInterface = retrofit.create(ReviewsInterface.class);
@@ -362,10 +373,8 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     }
 
 
-
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
 
         // save RecyclerView state
@@ -383,8 +392,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
 
         // restore RecyclerView state
@@ -402,12 +410,12 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     public void putStarInit(ImageView imageView, String id) {
 
         ContentResolver sunshineContentResolver = getContentResolver();
-        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id,null,null);
+        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI, null, id, null, null);
 
-        try{
+        try {
 
 
-            if (cursor.getCount() > 0 ) {
+            if (cursor.getCount() > 0) {
                 Picasso.with(this)
                         .load(R.mipmap.ic_star_full)
                         .placeholder(R.mipmap.ic_launcher)
@@ -421,12 +429,12 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                         .error(R.drawable.error)
                         .into(imageView);
             }
-        }catch(NullPointerException e){
+        } catch (NullPointerException e) {
             System.out.println("onActivityResult consume crashed");
-            runOnUiThread(new Runnable(){
-                public void run(){
+            runOnUiThread(new Runnable() {
+                public void run() {
                     Context context = getApplicationContext();
-                    Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(context, R.string.Error_Access_empty, Toast.LENGTH_SHORT);
                     toast.show();
                 }
             });
@@ -438,10 +446,10 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
 
         ContentResolver sunshineContentResolver = getContentResolver();
-        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id,null,null);
+        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI, null, id, null, null);
 
-        try{
-            if (cursor.getCount() > 0 ) {
+        try {
+            if (cursor.getCount() > 0) {
                 Picasso.with(this)
                         .load(R.mipmap.ic_star)
                         .placeholder(R.mipmap.ic_launcher)
@@ -457,12 +465,12 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                         .into(imageView);
                 addNewStar(imageView.getTag().toString());
             }
-        }catch(NullPointerException e){
+        } catch (NullPointerException e) {
             System.out.println("onActivityResult consume crashed");
-            runOnUiThread(new Runnable(){
-                public void run(){
+            runOnUiThread(new Runnable() {
+                public void run() {
                     Context context = getApplicationContext();
-                    Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(context, R.string.Error_Access_empty, Toast.LENGTH_SHORT);
                     toast.show();
                 }
             });
@@ -476,18 +484,20 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         starContentValues[0] = cv;
 
         ContentResolver sunshineContentResolver = getContentResolver();
-        int rowInsert = sunshineContentResolver.bulkInsert(StarContract.StarEntry.CONTENT_URI_INSERT,starContentValues);
+        int rowInsert = sunshineContentResolver.bulkInsert(StarContract.StarEntry.CONTENT_URI_INSERT, starContentValues);
         return rowInsert;
 
     }
 
 
-    /** Remove favorite of the list**/
+    /**
+     * Remove favorite of the list
+     **/
     private int removeStar(String id) {
         String[] starContentValues = new String[1];
         starContentValues[0] = id;
         ContentResolver sunshineContentResolver = getContentResolver();
-        int rowDelete = sunshineContentResolver.delete(StarContract.StarEntry.CONTENT_URI_DELETE,null,starContentValues);
+        int rowDelete = sunshineContentResolver.delete(StarContract.StarEntry.CONTENT_URI_DELETE, null, starContentValues);
         return rowDelete;
 
     }

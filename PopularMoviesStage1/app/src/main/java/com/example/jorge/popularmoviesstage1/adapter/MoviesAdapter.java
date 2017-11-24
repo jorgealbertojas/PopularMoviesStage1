@@ -16,7 +16,9 @@ import com.example.jorge.popularmoviesstage1.data.StarContract;
 import com.example.jorge.popularmoviesstage1.model.Movies;
 import com.example.jorge.popularmoviesstage1.R;
 import com.squareup.picasso.Picasso;
+
 import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -25,10 +27,10 @@ import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_IMAGE;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_SIZE_W500;
 
 
-
 /**
  * Created by jorge on 27/09/2017.
  */
+
 /**
  * {@link MoviesAdapter} exposes a list of weather forecasts to a
  * {@link android.support.v7.widget.RecyclerView}
@@ -61,12 +63,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         mClickHandler = clickHandler;
     }
 
-    /** create lit de Adapter Travel**/
+    /**
+     * create lit de Adapter Travel
+     **/
     public MoviesAdapter(List<Movies> data) {
         this.data = data;
     }
 
-    public MoviesAdapter(List<Movies> data,Cursor cursor, Context context) {
+    public MoviesAdapter(List<Movies> data, Cursor cursor, Context context) {
         this.data = data;
         this.mCursor = cursor;
     }
@@ -76,10 +80,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
      */
     public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        @BindView(R.id.iv_imageMovie_main) ImageView mMovieImageView;
-        @BindView(R.id.iv_star) ImageView mStarImageView;
+        @BindView(R.id.iv_imageMovie_main)
+        ImageView mMovieImageView;
+        @BindView(R.id.iv_star)
+        ImageView mStarImageView;
 
-        /** get field of the main for show RecyclerView**/
+        /**
+         * get field of the main for show RecyclerView
+         **/
         public MoviesAdapterViewHolder(View v) {
             super(v);
             ButterKnife.bind(this, itemView);
@@ -127,19 +135,19 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
      * passed into us.
      *
      * @param MoviesAdapterViewHolder The ViewHolder which should be updated to represent the
-     *                                  contents of the item at the given position in the data set.
-     * @param position                  The position of the item within the adapter's data set.
+     *                                contents of the item at the given position in the data set.
+     * @param position                The position of the item within the adapter's data set.
      */
     @Override
     public void onBindViewHolder(MoviesAdapterViewHolder MoviesAdapterViewHolder, int position) {
 
         Movies movies = ((Movies) data.get(position));
         MoviesAdapterViewHolder.mStarImageView.setTag(movies.getId());
-        putStarInit(MoviesAdapterViewHolder.mStarImageView,MoviesAdapterViewHolder.mStarImageView.getTag().toString());
+        putStarInit(MoviesAdapterViewHolder.mStarImageView, MoviesAdapterViewHolder.mStarImageView.getTag().toString());
         MoviesAdapterViewHolder.mStarImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                putStar((ImageView) view,view.getTag().toString());
+                putStar((ImageView) view, view.getTag().toString());
             }
         });
 
@@ -162,13 +170,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         return data.size();
     }
 
-    /** Put Star init favorite**/
+    /**
+     * Put Star init favorite
+     **/
     public void putStarInit(ImageView imageView, String id) {
 
         ContentResolver sunshineContentResolver = mContext.getContentResolver();
-        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id,null,null);
-        try{
-            if (cursor.getCount() > 0 ) {
+        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI, null, id, null, null);
+        try {
+            if (cursor.getCount() > 0) {
                 Picasso.with(mContext)
                         .load(R.mipmap.ic_star_full)
                         .placeholder(R.mipmap.ic_launcher)
@@ -182,19 +192,21 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
                         .error(R.drawable.error)
                         .into(imageView);
             }
-        }catch(NullPointerException e){
-                System.out.println("onActivityResult consume crashed");
+        } catch (NullPointerException e) {
+            System.out.println("onActivityResult consume crashed");
         }
     }
 
 
-    /** Put Star when change favorite**/
+    /**
+     * Put Star when change favorite
+     **/
     public void putStar(ImageView imageView, String id) {
 
         ContentResolver sunshineContentResolver = mContext.getContentResolver();
-        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id,null,null);
-        try{
-            if (cursor.getCount() > 0 ) {
+        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI, null, id, null, null);
+        try {
+            if (cursor.getCount() > 0) {
                 Picasso.with(mContext)
                         .load(R.mipmap.ic_star)
                         .placeholder(R.mipmap.ic_launcher)
@@ -209,14 +221,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
                         .error(R.drawable.error)
                         .into(imageView);
                 addNewStar(imageView.getTag().toString());
-             }
-        }catch(NullPointerException e){
+            }
+        } catch (NullPointerException e) {
             System.out.println("onActivityResult consume crashed");
         }
     }
 
 
-    /** Add favorite of the list**/
+    /**
+     * Add favorite of the list
+     **/
     private int addNewStar(String id) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_ID, id);
@@ -224,18 +238,20 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         starContentValues[0] = cv;
 
         ContentResolver sunshineContentResolver = mContext.getContentResolver();
-        int rowInsert = sunshineContentResolver.bulkInsert(StarContract.StarEntry.CONTENT_URI_INSERT,starContentValues);
+        int rowInsert = sunshineContentResolver.bulkInsert(StarContract.StarEntry.CONTENT_URI_INSERT, starContentValues);
         return rowInsert;
 
     }
 
 
-    /** Remove favorite of the list**/
+    /**
+     * Remove favorite of the list
+     **/
     private int removeStar(String id) {
         String[] starContentValues = new String[1];
         starContentValues[0] = id;
         ContentResolver sunshineContentResolver = mContext.getContentResolver();
-        int rowDelete = sunshineContentResolver.delete(StarContract.StarEntry.CONTENT_URI_DELETE,null,starContentValues);
+        int rowDelete = sunshineContentResolver.delete(StarContract.StarEntry.CONTENT_URI_DELETE, null, starContentValues);
         return rowDelete;
 
     }
@@ -243,9 +259,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     public List<Movies> getData() {
         return data;
     }
-
-
-
 
 
 }

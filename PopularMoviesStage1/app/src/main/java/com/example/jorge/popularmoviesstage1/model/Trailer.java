@@ -4,7 +4,9 @@ package com.example.jorge.popularmoviesstage1.model;
  * Created by jorge on 26/10/2017.
  */
 
-/** Model for get API trailer of the movies with this field */
+/**
+ * Model for get API trailer of the movies with this field
+ */
 
 public class Trailer {
 
@@ -35,7 +37,6 @@ public class Trailer {
     public void setName(String name) {
         this.name = name;
     }
-
 
 
 }
