@@ -5,13 +5,8 @@ import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-
-
-import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.REVIEWS;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.API_KEY;
 import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.VIDEO;
-import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.MOVIE;
-
 
 /**
  * Created by jorge on 26/10/2017.

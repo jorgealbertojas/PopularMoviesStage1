@@ -1,10 +1,8 @@
 package com.example.jorge.popularmoviesstage1.utilities;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-
-import static com.example.jorge.popularmoviesstage1.data.StarContract.StarEntry.COLUMN_ID;
-import static com.example.jorge.popularmoviesstage1.data.StarContract.StarEntry.TABLE_NAME;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 /**
  * Created by jorge on 13/11/2017.
@@ -13,17 +11,13 @@ import static com.example.jorge.popularmoviesstage1.data.StarContract.StarEntry.
 public class Common {
 
 
-    public static boolean verifyStarExist(String id, SQLiteDatabase db) {
-        Cursor cursor;
-        cursor = 	db.rawQuery(" SELECT " +  COLUMN_ID + " FROM " + TABLE_NAME + " WHERE ID = ? ", new String[]{id});
-        if (cursor.getCount() > 0){
-            return 	true;
-        }else{
-            return 	false;
-        }
-    }
-
-    public static Cursor getAllStar (SQLiteDatabase db) {
-        return 	db.rawQuery(" SELECT " +  COLUMN_ID + " FROM " + TABLE_NAME , null);
+    /**
+     * checks if internet is ok .
+     */
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

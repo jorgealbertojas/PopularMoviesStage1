@@ -28,6 +28,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+
+        <provider
+            android:name=".data.StarProvider"
+            android:authorities="com.example.jorge.popularmoviesstage1"
+            android:exported="false"
+            android:protectionLevel="signature"
+            android:syncable="true"/>
+
     </application>
 
 </manifest>

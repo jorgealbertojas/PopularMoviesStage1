@@ -1,7 +1,6 @@
 package com.example.jorge.popularmoviesstage1.data;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -25,7 +24,7 @@ public class StarDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
-        // Create a table to hold waitlist data
+        // Create a table to hold waitList data
         final String SQL_CREATE_STAR_TABLE = "CREATE TABLE IF NOT EXISTS " + StarContract.StarEntry.TABLE_NAME + " (" +
                 StarContract.StarEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 StarContract.StarEntry.COLUMN_ID + " INTEGER NOT NULL " +

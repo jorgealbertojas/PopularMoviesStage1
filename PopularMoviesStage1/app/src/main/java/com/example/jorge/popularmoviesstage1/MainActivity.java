@@ -1,18 +1,14 @@
 package com.example.jorge.popularmoviesstage1;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Movie;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -20,18 +16,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import com.android.internal.util.Predicate;
 import com.example.jorge.popularmoviesstage1.data.StarContract;
 import com.example.jorge.popularmoviesstage1.data.StarDbHelper;
 import com.example.jorge.popularmoviesstage1.interfaceMovies.MoviesInterface;
 import com.example.jorge.popularmoviesstage1.model.Movies;
 import com.example.jorge.popularmoviesstage1.adapter.MoviesAdapter;
+import com.example.jorge.popularmoviesstage1.utilities.Common;
 import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,16 +41,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-import static com.example.jorge.popularmoviesstage1.data.StarContract.StarEntry.COLUMN_ID;
-import static com.example.jorge.popularmoviesstage1.data.StarContract.StarEntry.TABLE_NAME;
-import static com.example.jorge.popularmoviesstage1.utilities.Common.getAllStar;
-import static com.example.jorge.popularmoviesstage1.utilities.Common.verifyStarExist;
-
 /**
  * {@link MoviesAdapter} exposes a list of weather forecasts to a
  * {@link android.support.v7.widget.RecyclerView}
  */
 public class MainActivity extends AppCompatActivity implements MoviesAdapterOnClickHandler {
+
+
 
     private final String KEY_RECYCLER_STATE = "recycler_state";
     private final String KEY_ADAPTER_STATE = "adapter_state";
@@ -71,14 +61,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
     private static Bundle mBundleRecyclerViewState;
 
-
-    private SQLiteDatabase mDb;
-
     private Context mContext;
 
-    private ArrayList<Movies> listMoviesAdapter;
+    private ArrayList<Movies> mListMoviesAdapter;
 
-    private Parcelable listState;
+    private Parcelable mListState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,41 +81,24 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
         if (savedInstanceState == null) {
 
-
             initRecyclerView();
             /*
-            * For salve state the activicty when rotate
+            * For salve state the activity when rotate
             * will end up displaying our weather data.
             */
             mBundleRecyclerViewState = new Bundle();
             Parcelable listState = mRecyclerView.getLayoutManager().onSaveInstanceState();
             mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
 
-
-
-
             /*
             * The ForecastAdapter is responsible for linking our weather data with the Views that
             * will end up displaying our weather data.
             */
 
-            //** CREATE DB SQLLITE **/
-            // Create a DB helper (this will create the DB if run for the first time)
-            StarDbHelper dbHelper = new StarDbHelper(this);
-
-            // Keep a reference to the mDb until paused or killed. Get a writable database
-            // because you will be adding restaurant customers
-            mDb = dbHelper.getWritableDatabase();
-
-            dbHelper.onCreate(mDb);
-
-            Cursor cursor = getAllStar(mDb);
-
             mMoviesAdapter = new MoviesAdapter(this);
 
             /* Setting the adapter attaches it to the RecyclerView in our layout. */
             mRecyclerView.setAdapter(mMoviesAdapter);
-
 
             /*
             * The ProgressBar that will indicate to the user that we are loading data. It will be
@@ -142,8 +112,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
 
             /* Once all of our views are setup, we can load the weather data. */
-            if (isOnline()) {
-                createStackoverflowAPI();
+            if (Common.isOnline(this)) {
+                createStackOverflowAPI();
                 mMoviesInterface.getMoviesPOPULAR().enqueue(moviesCallback);
 
             } else {
@@ -153,13 +123,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
             }
         }else{
             initRecyclerView();
-            listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-            listMoviesAdapter = (ArrayList<Movies>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE);
-            mRecyclerView.getLayoutManager().onRestoreInstanceState(listState);
-            StarDbHelper dbHelper = new StarDbHelper(this);
-            mDb = dbHelper.getWritableDatabase();
-            Cursor cursor = getAllStar(mDb);
-            mMoviesAdapter = new MoviesAdapter(listMoviesAdapter,cursor,mContext);
+            mListState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
+            mListMoviesAdapter = (ArrayList<Movies>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE);
+            mRecyclerView.getLayoutManager().onRestoreInstanceState(mListState);
+
+            ContentResolver sunshineContentResolver = mContext.getContentResolver();
+            Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI_GET_ALL,null,null,null,null);
+
+            mMoviesAdapter = new MoviesAdapter(mListMoviesAdapter,cursor,mContext);
 
             mRecyclerView.setAdapter(mMoviesAdapter);
         }
@@ -175,13 +146,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
                 if (response.isSuccessful()) {
                     List<Movies> data = new ArrayList<>();
                     data.addAll(response.body().results);
-                    StarDbHelper dbHelper = new StarDbHelper(mContext);
 
-                    // Keep a reference to the mDb until paused or killed. Get a writable database
-                    // because you will be adding restaurant customers
-                    mDb = dbHelper.getWritableDatabase();
-                    Cursor cursor = getAllStar(mDb);
-
+                    ContentResolver sunshineContentResolver = mContext.getContentResolver();
+                    Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI_GET_ALL,null,null,null,null);
 
                     mMoviesAdapter = new MoviesAdapter(data,cursor,mContext);
                     mRecyclerView.setAdapter(mMoviesAdapter);
@@ -205,22 +172,13 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
         @Override
         public void onFailure(Call<ListWrapperMovies<Movies>> call, Throwable t) {
-            Context contexto = getApplicationContext();
-            Toast toast = Toast.makeText(contexto, R.string.Error_json_data,Toast.LENGTH_SHORT);
+            Context context = getApplicationContext();
+            Toast toast = Toast.makeText(context, R.string.Error_json_data,Toast.LENGTH_SHORT);
             toast.show();
         }
 
     };
 
-    /**
-     * checks if internet is ok .
-     */
-    private boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
 
     @Override
     public void onClick(Movies movies) {
@@ -241,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
 
     /** Find Data the API Json with Retrofit */
-    private void createStackoverflowAPI() {
+    private void createStackOverflowAPI() {
         Gson gson = new GsonBuilder()
                 .create();
 
@@ -273,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
         if (id == R.id.action_movie_popular) {
             /** Get data JSON order Popular */
             mLoadingIndicator.setVisibility(View.VISIBLE);
-            createStackoverflowAPI();
+            createStackOverflowAPI();
             mMoviesInterface.getMoviesPOPULAR().enqueue(moviesCallback);
             return true;
         }
@@ -281,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
         if (id == R.id.action_movie_top) {
             /** Get data JSON order Top Rated */
             mLoadingIndicator.setVisibility(View.VISIBLE);
-            createStackoverflowAPI();
+            createStackOverflowAPI();
             mMoviesInterface.getMoviesTOP_RATED().enqueue(moviesCallback);
             return true;
         }
@@ -289,23 +247,35 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
         if (id == R.id.action_movie_favorite) {
             /** Get data JSON order Top Rated */
-            listMoviesAdapter = (ArrayList<Movies>) mMoviesAdapter.getData();
-            ArrayList<Movies> listMoviesAdapterTemp = new ArrayList<Movies>();
-            int i = 0;
-            while (i <  listMoviesAdapter.size()){
+            try{
+                mListMoviesAdapter = (ArrayList<Movies>) mMoviesAdapter.getData();
+                ArrayList<Movies> listMoviesAdapterTemp = new ArrayList<Movies>();
+                int i = 0;
+                while (i <  mListMoviesAdapter.size()){
 
-                String gg =  listMoviesAdapter.get(i).getId();
-                if (!verifyStarExist(gg,mDb)){
-
-                    listMoviesAdapterTemp.add(listMoviesAdapter.get(i));
+                    String id_num =  mListMoviesAdapter.get(i).getId();
+                    ContentResolver sunshineContentResolver = mContext.getContentResolver();
+                    Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id_num,null,null);
+                    if (cursor.getCount() > 0 ) {
+                        listMoviesAdapterTemp.add(mListMoviesAdapter.get(i));
+                    }
+                    i++;
                 }
-                i++;
+
+                ContentResolver sunshineContentResolver = mContext.getContentResolver();
+                Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI_GET_ALL,null,null,null,null);
+                mMoviesAdapter = new MoviesAdapter(listMoviesAdapterTemp,cursor,mContext);
+                mRecyclerView.setAdapter(mMoviesAdapter);
+            }catch(NullPointerException e){
+                System.out.println("onActivityResult consume crashed");
+                runOnUiThread(new Runnable(){
+                    public void run(){
+                        Context context = getApplicationContext();
+                        Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
             }
-            StarDbHelper dbHelper = new StarDbHelper(this);
-            mDb = dbHelper.getWritableDatabase();
-            Cursor cursor = getAllStar(mDb);
-            mMoviesAdapter = new MoviesAdapter(listMoviesAdapterTemp,cursor,mContext);
-            mRecyclerView.setAdapter(mMoviesAdapter);
 
             return true;
         }
@@ -340,10 +310,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
         // save RecyclerView state
         mBundleRecyclerViewState = new Bundle();
-        listState = mRecyclerView.getLayoutManager().onSaveInstanceState();
-        listMoviesAdapter = (ArrayList<Movies>) mMoviesAdapter.getData();
-        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
-        mBundleRecyclerViewState.putSerializable(KEY_ADAPTER_STATE, listMoviesAdapter);
+        mListState = mRecyclerView.getLayoutManager().onSaveInstanceState();
+        mListMoviesAdapter = (ArrayList<Movies>) mMoviesAdapter.getData();
+        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, mListState);
+        mBundleRecyclerViewState.putSerializable(KEY_ADAPTER_STATE, mListMoviesAdapter);
     }
 
     @Override
@@ -353,12 +323,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapterOnCl
 
         // restore RecyclerView state
         if (mBundleRecyclerViewState != null) {
-            listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-            listMoviesAdapter = (ArrayList<Movies>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE);
+            mListState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
+            mListMoviesAdapter = (ArrayList<Movies>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE);
 
         }
     }
-
-
 
 }

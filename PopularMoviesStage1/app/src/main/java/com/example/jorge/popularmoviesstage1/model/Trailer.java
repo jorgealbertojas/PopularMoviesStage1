@@ -1,7 +1,5 @@
 package com.example.jorge.popularmoviesstage1.model;
 
-import com.google.gson.annotations.SerializedName;
-
 /**
  * Created by jorge on 26/10/2017.
  */

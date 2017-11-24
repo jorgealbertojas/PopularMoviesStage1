@@ -1,26 +1,26 @@
 package com.example.jorge.popularmoviesstage1.adapter;
 
-import android.content.res.Resources;
+import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import com.example.jorge.popularmoviesstage1.data.StarContract;
-import com.example.jorge.popularmoviesstage1.data.StarDbHelper;
 import com.example.jorge.popularmoviesstage1.model.Movies;
 import com.example.jorge.popularmoviesstage1.R;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static com.example.jorge.popularmoviesstage1.data.StarContract.StarEntry.COLUMN_ID;
-import static com.example.jorge.popularmoviesstage1.data.StarContract.StarEntry.TABLE_NAME;
-import static com.example.jorge.popularmoviesstage1.utilities.Common.getAllStar;
-import static com.example.jorge.popularmoviesstage1.utilities.Common.verifyStarExist;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_IMAGE;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_SIZE_W500;
 
@@ -41,12 +41,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
 
     public Cursor mCursor;
 
-    private SQLiteDatabase mDb;
-
-    /*
-     * An on-click handler that we've defined to make it easy for an Activity to interface with
-     * our RecyclerView
-     */
     private static MoviesAdapterOnClickHandler mClickHandler;
 
     /**
@@ -75,8 +69,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     public MoviesAdapter(List<Movies> data,Cursor cursor, Context context) {
         this.data = data;
         this.mCursor = cursor;
-        StarDbHelper dbHelper = new StarDbHelper(context);
-        this.mDb = dbHelper.getWritableDatabase();
     }
 
     /**
@@ -84,14 +76,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
      */
     public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        @BindView(R.id.iv_imageMovies) ImageView mMovieImageView;
+        @BindView(R.id.iv_imageMovie_main) ImageView mMovieImageView;
         @BindView(R.id.iv_star) ImageView mStarImageView;
 
-        public MoviesAdapterViewHolder(View view) {
-            super(view);
-            mMovieImageView = (ImageView) view.findViewById(R.id.iv_imageMovie);
-            mStarImageView = (ImageView) view.findViewById(R.id.iv_star);
-            view.setOnClickListener(this);
+        /** get field of the main for show RecyclerView**/
+        public MoviesAdapterViewHolder(View v) {
+            super(v);
+            ButterKnife.bind(this, itemView);
+            v.setOnClickListener(this);
         }
 
         /**
@@ -142,24 +134,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     public void onBindViewHolder(MoviesAdapterViewHolder MoviesAdapterViewHolder, int position) {
 
         Movies movies = ((Movies) data.get(position));
-
-
         MoviesAdapterViewHolder.mStarImageView.setTag(movies.getId());
-
-        mCursor = getAllStar(mDb);
-
-
         putStarInit(MoviesAdapterViewHolder.mStarImageView,MoviesAdapterViewHolder.mStarImageView.getTag().toString());
-
         MoviesAdapterViewHolder.mStarImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
-                mCursor = getAllStar(mDb);
-
                 putStar((ImageView) view,view.getTag().toString());
-
             }
         });
 
@@ -182,64 +162,81 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         return data.size();
     }
 
-
+    /** Put Star init favorite**/
     public void putStarInit(ImageView imageView, String id) {
 
-        if (verifyStarExist(id,mDb)) {
-            Picasso.with(mContext)
-                    .load(R.mipmap.ic_star)
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.drawable.error)
-                    .into(imageView);
+        ContentResolver sunshineContentResolver = mContext.getContentResolver();
+        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id,null,null);
+        try{
+            if (cursor.getCount() > 0 ) {
+                Picasso.with(mContext)
+                        .load(R.mipmap.ic_star_full)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.drawable.error)
+                        .into(imageView);
 
-        } else {
-            Picasso.with(mContext)
-                    .load(R.mipmap.ic_star_full)
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.drawable.error)
-                    .into(imageView);
+            } else {
+                Picasso.with(mContext)
+                        .load(R.mipmap.ic_star)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.drawable.error)
+                        .into(imageView);
+            }
+        }catch(NullPointerException e){
+                System.out.println("onActivityResult consume crashed");
         }
     }
 
+
+    /** Put Star when change favorite**/
     public void putStar(ImageView imageView, String id) {
 
-        if (verifyStarExist(id,mDb)) {
-            Picasso.with(mContext)
-                    .load(R.mipmap.ic_star_full)
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.drawable.error)
-                    .into(imageView);
-            removeStar(imageView, imageView.getTag().toString());
+        ContentResolver sunshineContentResolver = mContext.getContentResolver();
+        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id,null,null);
+        try{
+            if (cursor.getCount() > 0 ) {
+                Picasso.with(mContext)
+                        .load(R.mipmap.ic_star)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.drawable.error)
+                        .into(imageView);
+                removeStar(imageView.getTag().toString());
 
-        } else {
-            Picasso.with(mContext)
-                    .load(R.mipmap.ic_star)
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.drawable.error)
-                    .into(imageView);
-            addNewStar(imageView.getTag().toString());
+            } else {
+                Picasso.with(mContext)
+                        .load(R.mipmap.ic_star_full)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.drawable.error)
+                        .into(imageView);
+                addNewStar(imageView.getTag().toString());
+             }
+        }catch(NullPointerException e){
+            System.out.println("onActivityResult consume crashed");
         }
     }
 
 
-    private long addNewStar(String id) {
-
+    /** Add favorite of the list**/
+    private int addNewStar(String id) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_ID, id);
-        return mDb.insert(StarContract.StarEntry.TABLE_NAME, null, cv);
+        ContentValues[] starContentValues = new ContentValues[1];
+        starContentValues[0] = cv;
+
+        ContentResolver sunshineContentResolver = mContext.getContentResolver();
+        int rowInsert = sunshineContentResolver.bulkInsert(StarContract.StarEntry.CONTENT_URI_INSERT,starContentValues);
+        return rowInsert;
+
     }
 
 
-    // COMPLETED (1) Create a new function called removeGuest that takes long id as input and returns a boolean
-    /**
-     * Removes the record with the specified id
-     *
-     * @param id the DB id to be removed
-     * @return True: if removed successfully, False: if failed
-     */
-    private boolean removeStar(ImageView imageView, String id) {
-            // COMPLETED (2) Inside, call mDb.delete to pass in the TABLE_NAME and the condition that WaitlistEntry._ID equals id
-            return mDb.delete(StarContract.StarEntry.TABLE_NAME, COLUMN_ID + "=" + id, null) > 0;
+    /** Remove favorite of the list**/
+    private int removeStar(String id) {
+        String[] starContentValues = new String[1];
+        starContentValues[0] = id;
+        ContentResolver sunshineContentResolver = mContext.getContentResolver();
+        int rowDelete = sunshineContentResolver.delete(StarContract.StarEntry.CONTENT_URI_DELETE,null,starContentValues);
+        return rowDelete;
 
     }
 

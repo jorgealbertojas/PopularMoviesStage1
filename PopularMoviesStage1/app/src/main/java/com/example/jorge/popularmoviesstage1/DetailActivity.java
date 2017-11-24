@@ -1,31 +1,31 @@
 package com.example.jorge.popularmoviesstage1;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.jorge.popularmoviesstage1.adapter.MoviesAdapter;
 import com.example.jorge.popularmoviesstage1.adapter.ReviewsAdapter;
 import com.example.jorge.popularmoviesstage1.adapter.TrailerAdapter;
-import com.example.jorge.popularmoviesstage1.interfaceMovies.MoviesInterface;
+import com.example.jorge.popularmoviesstage1.data.StarContract;
+import com.example.jorge.popularmoviesstage1.data.StarDbHelper;
 import com.example.jorge.popularmoviesstage1.interfaceMovies.ReviewsInterface;
 import com.example.jorge.popularmoviesstage1.interfaceMovies.TrailerInterface;
-import com.example.jorge.popularmoviesstage1.model.Movies;
 import com.example.jorge.popularmoviesstage1.model.Reviews;
 import com.example.jorge.popularmoviesstage1.model.Trailer;
+import com.example.jorge.popularmoviesstage1.utilities.Common;
 import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
 import com.example.jorge.popularmoviesstage1.utilities.Utilite;
 import com.google.gson.Gson;
@@ -44,15 +44,20 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.example.jorge.popularmoviesstage1.data.StarContract.StarEntry.COLUMN_ID;
 import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.MOVIE;
-import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.REVIEWS;
-import static com.example.jorge.popularmoviesstage1.utilities.InformationNew.VIDEO;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_IMAGE;
 import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_SIZE_W154;
 
 /** Activity for show detail movies */
 public class DetailActivity extends AppCompatActivity implements TrailerAdapter.TrailerAdapterOnClickHandler, ReviewsAdapter.ReviewsAdapterOnClickHandler {
 
+
+    private final String KEY_ADAPTER_STATE_TRAILER = "adapter_state_trailer";
+    private final String KEY_RECYCLER_STATE_TRAILER = "recycler_state_trailer";
+
+    private final String KEY_ADAPTER_STATE_REVIEWS = "adapter_state_reviews";
+    private final String KEY_RECYCLER_STATE_REVIEWS = "recycler_state_reviews";
 
     String mId;
     String mTitle;
@@ -68,12 +73,28 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     @BindView(R.id.tv_vote_average) TextView  tvVoteAverage;
     @BindView(R.id.tv_release_date) TextView  tvReleaseDate;
 
+    @BindView(R.id.iv_star_detail) ImageView ivImageStarDetail;
+
     TrailerAdapter mTrailerAdapter;
     ReviewsAdapter mReviewAdapter;
+    private static Bundle mBundleRecyclerViewState;
+
     private TrailerInterface mTrailerInterface;
     private ReviewsInterface mReviewsInterface;
     private RecyclerView mRecyclerView;
     private RecyclerView mRecyclerViewReviews;
+
+    private ArrayList<Trailer> mListTrailerAdapter;
+    private Parcelable mListStateTrailer;
+
+    private ArrayList<Reviews> mListReviewsAdapter;
+    private Parcelable mListStateReviews;
+
+
+    public Cursor mCursor;
+
+    private SQLiteDatabase mDb;
+
 
     /** Create activity Detail */
     @Override
@@ -102,7 +123,61 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         tvReleaseDate.setText(mReleaseDate);
         Picasso.with(this).load(URL_IMAGE + URL_SIZE_W154 + mPosterPath).fit().into(ivImageMovies);
 
-        configurationRecyclerView(mId);
+        StarDbHelper dbHelper = new StarDbHelper(this);
+        mDb = dbHelper.getWritableDatabase();
+
+        ivImageStarDetail.setTag(mId);
+
+        putStarInit(ivImageStarDetail,ivImageStarDetail.getTag().toString());
+
+        ivImageStarDetail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                putStar((ImageView) view,view.getTag().toString());
+
+            }
+        });
+
+
+        if (savedInstanceState == null) {
+
+
+            initRecyclerViewReviews();
+            initRecyclerViewTrailer();
+            /*
+            * For salve state the activity when rotate
+            * will end up displaying our weather data.
+            */
+            mBundleRecyclerViewState = new Bundle();
+            Parcelable listStateTrailer = mRecyclerView.getLayoutManager().onSaveInstanceState();
+            mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE_TRAILER, listStateTrailer);
+
+            Parcelable listStateReviews = mRecyclerViewReviews.getLayoutManager().onSaveInstanceState();
+            mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE_REVIEWS, listStateReviews);
+
+            mRecyclerView.setAdapter(mTrailerAdapter);
+            mRecyclerViewReviews.setAdapter(mReviewAdapter);
+
+            configurationRecyclerView(mId);
+
+        }else{
+            initRecyclerViewTrailer();
+            mListStateTrailer = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE_TRAILER);
+            mListTrailerAdapter = (ArrayList<Trailer>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE_TRAILER);
+            mRecyclerView.getLayoutManager().onRestoreInstanceState(mListStateTrailer);
+            mTrailerAdapter = new TrailerAdapter(mListTrailerAdapter);
+            mRecyclerView.setAdapter(mTrailerAdapter);
+
+
+            initRecyclerViewReviews();
+            mListStateReviews = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE_REVIEWS);
+            mListReviewsAdapter = (ArrayList<Reviews>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE_REVIEWS);
+            mRecyclerViewReviews.getLayoutManager().onRestoreInstanceState(mListStateReviews);
+            mReviewAdapter = new ReviewsAdapter(mListReviewsAdapter);
+            mRecyclerViewReviews.setAdapter(mReviewAdapter);
+        }
+
 
     }
 
@@ -127,32 +202,42 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     }
 
 
-
-    private void configurationRecyclerView(String mId){
+    private void initRecyclerViewTrailer(){
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_trailer);
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mTrailerAdapter = new TrailerAdapter(this);
-        mRecyclerView.setAdapter(mTrailerAdapter);
+    }
 
 
+    private void initRecyclerViewReviews() {
         mRecyclerViewReviews = (RecyclerView) findViewById(R.id.rv_reviews);
         LinearLayoutManager layoutManagerReviews =
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerViewReviews.setLayoutManager(layoutManagerReviews);
         mRecyclerViewReviews.setHasFixedSize(true);
         mReviewAdapter = new ReviewsAdapter(this);
-        mRecyclerViewReviews.setAdapter(mTrailerAdapter);
+    }
+
+    private void
+    configurationRecyclerView(String mId){
+
+
+
+        mRecyclerView.setAdapter(mTrailerAdapter);
+
+
+        mRecyclerViewReviews.setAdapter(mReviewAdapter);
 
 
         /* Once all of our views are setup, we can load the weather data. */
-        if (isOnline()) {
-            createStackoverflowAPI(mId);
+        if (Common.isOnline(this)) {
+            createStackOverflowAPI(mId);
             mTrailerInterface.getTrailer().enqueue(trailerCallback);
 
-            createStackoverflowAPIReview(mId);
+            createStackOverflowAPIReview(mId);
             mReviewsInterface.getReviews().enqueue(reviewCallback);
 
         }else{
@@ -172,7 +257,8 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 if (response.isSuccessful()) {
                     List<Trailer> data = new ArrayList<>();
                     data.addAll(response.body().results);
-                    mRecyclerView.setAdapter(new TrailerAdapter(data));
+                    mTrailerAdapter = new TrailerAdapter(data);
+                    mRecyclerView.setAdapter(mTrailerAdapter);
 
 
                 } else {
@@ -192,8 +278,8 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
         @Override
         public void onFailure(Call<ListWrapperMovies<Trailer>> call, Throwable t) {
-            Context contexto = getApplicationContext();
-            Toast toast = Toast.makeText(contexto, R.string.Error_json_data,Toast.LENGTH_SHORT);
+            Context context = getApplicationContext();
+            Toast toast = Toast.makeText(context, R.string.Error_json_data,Toast.LENGTH_SHORT);
             toast.show();
         }
 
@@ -206,6 +292,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
                 if (response.isSuccessful()) {
                     List<Reviews> data = new ArrayList<>();
                     data.addAll(response.body().results);
+                    mReviewAdapter = new ReviewsAdapter(data);
                     mRecyclerViewReviews.setAdapter(new ReviewsAdapter(data));
 
 
@@ -226,22 +313,16 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
 
         @Override
         public void onFailure(Call<ListWrapperMovies<Reviews>> call, Throwable t) {
-            Context contexto = getApplicationContext();
-            Toast toast = Toast.makeText(contexto, R.string.Error_json_data,Toast.LENGTH_SHORT);
+            Context context = getApplicationContext();
+            Toast toast = Toast.makeText(context, R.string.Error_json_data,Toast.LENGTH_SHORT);
             toast.show();
         }
 
     };
 
-    private boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
 
     /** Find Data the API Json with Retrofit */
-    private void createStackoverflowAPI(String ID_TRAILER) {
+    private void createStackOverflowAPI(String ID_TRAILER) {
         Gson gson = new GsonBuilder()
                 .create();
 
@@ -255,7 +336,7 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
         mTrailerInterface = retrofit.create(TrailerInterface.class);
     }
 
-    private void createStackoverflowAPIReview(String ID_TRAILER) {
+    private void createStackOverflowAPIReview(String ID_TRAILER) {
         Gson gson = new GsonBuilder()
                 .create();
 
@@ -279,4 +360,136 @@ public class DetailActivity extends AppCompatActivity implements TrailerAdapter.
     public void onClick(Reviews reviews) {
 
     }
+
+
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        // save RecyclerView state
+        mBundleRecyclerViewState = new Bundle();
+
+        mListStateTrailer = mRecyclerView.getLayoutManager().onSaveInstanceState();
+        mListTrailerAdapter = (ArrayList<Trailer>) mTrailerAdapter.getData();
+        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE_TRAILER, mListStateTrailer);
+        mBundleRecyclerViewState.putSerializable(KEY_ADAPTER_STATE_TRAILER, mListTrailerAdapter);
+
+        mListStateReviews = mRecyclerViewReviews.getLayoutManager().onSaveInstanceState();
+        mListReviewsAdapter = (ArrayList<Reviews>) mReviewAdapter.getData();
+        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE_REVIEWS, mListStateReviews);
+        mBundleRecyclerViewState.putSerializable(KEY_ADAPTER_STATE_REVIEWS, mListReviewsAdapter);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        // restore RecyclerView state
+        if (mBundleRecyclerViewState != null) {
+            mListStateTrailer = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE_TRAILER);
+            mListTrailerAdapter = (ArrayList<Trailer>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE_TRAILER);
+
+            mListStateReviews = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE_REVIEWS);
+            mListReviewsAdapter = (ArrayList<Reviews>) mBundleRecyclerViewState.getSerializable(KEY_ADAPTER_STATE_REVIEWS);
+
+        }
+    }
+
+
+    public void putStarInit(ImageView imageView, String id) {
+
+        ContentResolver sunshineContentResolver = getContentResolver();
+        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id,null,null);
+
+        try{
+
+
+            if (cursor.getCount() > 0 ) {
+                Picasso.with(this)
+                        .load(R.mipmap.ic_star_full)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.drawable.error)
+                        .into(imageView);
+
+            } else {
+                Picasso.with(this)
+                        .load(R.mipmap.ic_star)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.drawable.error)
+                        .into(imageView);
+            }
+        }catch(NullPointerException e){
+            System.out.println("onActivityResult consume crashed");
+            runOnUiThread(new Runnable(){
+                public void run(){
+                    Context context = getApplicationContext();
+                    Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            });
+        }
+
+    }
+
+    public void putStar(ImageView imageView, String id) {
+
+
+        ContentResolver sunshineContentResolver = getContentResolver();
+        Cursor cursor = sunshineContentResolver.query(StarContract.StarEntry.CONTENT_URI,null,id,null,null);
+
+        try{
+            if (cursor.getCount() > 0 ) {
+                Picasso.with(this)
+                        .load(R.mipmap.ic_star)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.drawable.error)
+                        .into(imageView);
+                removeStar(imageView.getTag().toString());
+
+            } else {
+                Picasso.with(this)
+                        .load(R.mipmap.ic_star_full)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.drawable.error)
+                        .into(imageView);
+                addNewStar(imageView.getTag().toString());
+            }
+        }catch(NullPointerException e){
+            System.out.println("onActivityResult consume crashed");
+            runOnUiThread(new Runnable(){
+                public void run(){
+                    Context context = getApplicationContext();
+                    Toast toast = Toast.makeText(context, R.string.Error_Access_empty,Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            });
+        }
+    }
+
+    private int addNewStar(String id) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_ID, id);
+        ContentValues[] starContentValues = new ContentValues[1];
+        starContentValues[0] = cv;
+
+        ContentResolver sunshineContentResolver = getContentResolver();
+        int rowInsert = sunshineContentResolver.bulkInsert(StarContract.StarEntry.CONTENT_URI_INSERT,starContentValues);
+        return rowInsert;
+
+    }
+
+
+    /** Remove favorite of the list**/
+    private int removeStar(String id) {
+        String[] starContentValues = new String[1];
+        starContentValues[0] = id;
+        ContentResolver sunshineContentResolver = getContentResolver();
+        int rowDelete = sunshineContentResolver.delete(StarContract.StarEntry.CONTENT_URI_DELETE,null,starContentValues);
+        return rowDelete;
+
+    }
+
 }

@@ -1,7 +1,6 @@
 package com.example.jorge.popularmoviesstage1.adapter;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,17 +9,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.jorge.popularmoviesstage1.R;
-
 import com.example.jorge.popularmoviesstage1.model.Trailer;
-import com.squareup.picasso.Picasso;
-
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_IMAGE;
-import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_SIZE_W500;
 
 /**
  * Created by jorge on 26/10/2017.
@@ -34,10 +26,6 @@ import static com.example.jorge.popularmoviesstage1.utilities.Utilite.URL_SIZE_W
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerAdapterViewHolder> {
 
     private List<Trailer> data;
-
-    private Context mContext;
-
-
 
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
@@ -116,7 +104,6 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
 
         View v;
         v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.information_trailer, viewGroup, false);
-        mContext = viewGroup.getContext();
         return new TrailerAdapter.TrailerAdapterViewHolder(v);
     }
 
@@ -153,6 +140,11 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
         if (null == data) return 0;
         return data.size();
     }
+
+    public List<Trailer> getData() {
+        return data;
+    }
+
 
 
 }

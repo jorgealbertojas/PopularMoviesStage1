@@ -10,9 +10,7 @@ import android.widget.TextView;
 
 import com.example.jorge.popularmoviesstage1.R;
 import com.example.jorge.popularmoviesstage1.model.Reviews;
-
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -141,6 +139,8 @@ public class ReviewsAdapter  extends RecyclerView.Adapter<ReviewsAdapter.Reviews
         ReviewsAdapterViewHolder.mContentTextView.setText(reviews.getContent());
         ReviewsAdapterViewHolder.mUrlTextView.setText(reviews.getUrl());
 
+
+
     }
 
     /**
@@ -153,6 +153,10 @@ public class ReviewsAdapter  extends RecyclerView.Adapter<ReviewsAdapter.Reviews
     public int getItemCount() {
         if (null == data) return 0;
         return data.size();
+    }
+
+    public List<Reviews> getData() {
+        return data;
     }
 
 

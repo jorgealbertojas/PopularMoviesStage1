@@ -1,7 +1,6 @@
 package com.example.jorge.popularmoviesstage1.interfaceMovies;
 
 import com.example.jorge.popularmoviesstage1.model.Reviews;
-import com.example.jorge.popularmoviesstage1.model.Trailer;
 import com.example.jorge.popularmoviesstage1.utilities.ListWrapperMovies;
 
 import retrofit2.Call;
